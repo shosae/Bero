@@ -100,6 +100,10 @@ class DeliverToRoomActionClient(Node):
 
     def publish_pickup_confirm(self):
         """수령 확인을 위해 현재 goal의 UUID를 publish."""
+        if not self._delivery_client.server_is_ready():
+            self._emit_status("error", "배달 서버 연결 끊김")
+            return
+
         if self._current_goal_handle is None:
             self._emit_status("error", "현재 진행중인 배달이 없습니다.")
             return
@@ -302,7 +306,7 @@ class RoomInputWindow(QWidget):
         if not self._room_number or self._mission_active:
             return
         self._mission_active = True
-        self._show_mission_status("Action server 연결 중...")
+        self._show_mission_status("배달 서버 연결 중...")
         self._ros_thread.send_delivery_request(self._room_number)
 
     def _handle_pickup_confirm(self):
@@ -338,7 +342,7 @@ class RoomInputWindow(QWidget):
     def _update_mission_status(self, phase: str, status: str):
         if phase == "waiting":
             self._mission_active = True
-            self._show_mission_status("Action server 연결 중...")
+            self._show_mission_status(status)
 
         elif phase in ("started", "moving_to_room", "return"):
             self._mission_active = True
