@@ -1,0 +1,85 @@
+<root main_tree_to_execute="MainTree">
+
+  <!-- =====================================================
+       MainTree: Basecamp -> 목적지 -> 픽업 대기 -> Basecamp 복귀
+       ===================================================== -->
+  <BehaviorTree ID="MainTree">
+    <SequenceStar name="MissionLifecycle"> 
+
+      <!-- Stage 1: Get Mission & Go to Room -->
+      <Action ID="GetMissionData" service_name="/get_mission_data" target_room="{target_room_number}" mission_uuid="{mission_uuid}" />
+      <Action ID="GetWaypoint" waypoint_name="{target_room_number}" waypoint_pose="{goal}" />
+      <Action ID="PhaseManager" phase="moving_to_room"/>
+      <!-- Navigate to Room -->
+      <RecoveryNode number_of_retries="6" name="NavigateToRoomRecovery">
+        <PipelineSequence name="NavigateToRoom">
+          <!-- Stage 1-1: Path Planning -->
+          <RateController hz="1.0">
+            <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+              <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Room" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </RecoveryNode>
+          </RateController>
+          <!-- Stage 1-2: Path Following -->
+          <RecoveryNode number_of_retries="1" name="FollowPath">
+            <FollowPath path="{path}" controller_id="FollowPath"/>
+            <ClearEntireCostmap name="ClearLocalCostmap-Room" service_name="local_costmap/clear_entirely_local_costmap"/>
+          </RecoveryNode>
+        </PipelineSequence>
+        <!-- Recovery(clear costmap, wait, backup, spin) -->
+        <ReactiveFallback name="RecoveryFallback">
+          <GoalUpdated/>
+          <RoundRobin name="RecoveryActions">
+            <Sequence name="ClearingActions">
+              <ClearEntireCostmap name="ClearLocalCostmap-Recovery" service_name="local_costmap/clear_entirely_local_costmap"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Recovery" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </Sequence>
+            <Wait wait_duration="3"/>
+            <BackUp backup_dist="0.3" backup_speed="0.05"/>
+            <Spin spin_dist="1.57"/>
+          </RoundRobin>
+        </ReactiveFallback>
+      </RecoveryNode>
+      
+      <!-- Stage 2: Wait for Confirmation -->
+      <Action ID="PhaseManager" phase="confirm"/>
+      <Action ID="WaitForConfirmation" confirm_topic="/pickup/confirm" mission_uuid="{mission_uuid}" />
+
+      <!-- Stage 3: Return to Basecamp -->
+      <Action ID="PhaseManager" phase="return"/>
+      <Action ID="GetWaypoint" waypoint_name="basecamp" waypoint_pose="{goal}" />
+      <!-- Navigate to Basecamp -->
+      <RecoveryNode number_of_retries="6" name="NavigateToBasecampRecovery">
+        <PipelineSequence name="NavigateToBasecamp">
+          <!-- Stage 3-1: Path Planning -->
+          <RateController hz="1.0">
+            <RecoveryNode number_of_retries="1" name="ComputePathToBasecamp">
+              <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Basecamp" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </RecoveryNode>
+          </RateController>
+          <!-- Stage 3-2: Path Following -->
+          <RecoveryNode number_of_retries="1" name="FollowPathToBasecamp">
+            <FollowPath path="{path}" controller_id="FollowPath"/>
+            <ClearEntireCostmap name="ClearLocalCostmap-Basecamp" service_name="local_costmap/clear_entirely_local_costmap"/>
+          </RecoveryNode>
+        </PipelineSequence>
+        <!-- Recovery(clear costmap, wait, backup, spin) -->
+        <ReactiveFallback name="RecoveryFallbackBasecamp">
+          <GoalUpdated/>
+          <RoundRobin name="RecoveryActions">
+            <Sequence name="ClearingActions">
+              <ClearEntireCostmap name="ClearLocalCostmap-Recovery" service_name="local_costmap/clear_entirely_local_costmap"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Recovery" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </Sequence>
+            <Wait wait_duration="3"/>
+            <BackUp backup_dist="0.3" backup_speed="0.05"/>
+            <Spin spin_dist="1.57"/>
+          </RoundRobin>
+        </ReactiveFallback>
+      </RecoveryNode>
+
+    </SequenceStar>
+  </BehaviorTree>
+
+</root>
