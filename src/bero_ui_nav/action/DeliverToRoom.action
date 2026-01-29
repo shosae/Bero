@@ -1,0 +1,10 @@
+# Goal
+string room_number
+---
+# Result
+bool success
+string message
+---
+# Feedback
+string status
+string phase

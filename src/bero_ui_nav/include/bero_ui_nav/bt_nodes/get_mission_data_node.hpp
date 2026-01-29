@@ -1,0 +1,37 @@
+// get_mission_data_node.hpp
+
+#pragma once
+
+#include <memory>
+#include <string>
+
+#include "nav2_behavior_tree/bt_service_node.hpp"
+
+#include "unique_identifier_msgs/msg/uuid.hpp"
+#include "bero_ui_nav/srv/get_mission_data.hpp"
+
+namespace bero_ui_nav
+{
+
+class GetMissionDataNode
+  : public nav2_behavior_tree::BtServiceNode<bero_ui_nav::srv::GetMissionData>
+{
+public:
+  GetMissionDataNode(const std::string & service_name, const BT::NodeConfiguration & conf);
+
+  static BT::PortsList providedPorts()
+  {
+    return {
+      BT::InputPort<std::string>("service_name", "Service name to connect to"),
+      BT::OutputPort<std::string>("target_room", "Target room number"),
+      BT::OutputPort<unique_identifier_msgs::msg::UUID>("mission_uuid", "Mission UUID")
+    };
+  }
+
+  void on_tick() override;
+  void halt() override;
+  BT::NodeStatus on_completion(
+    std::shared_ptr<bero_ui_nav::srv::GetMissionData::Response> response) override;
+};
+
+}  // namespace bero_ui_nav

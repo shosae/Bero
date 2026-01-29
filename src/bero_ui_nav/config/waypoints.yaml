@@ -1,0 +1,28 @@
+mission_manager:
+  ros__parameters:
+    waypoints:
+      # Base camp
+      basecamp:
+        position:
+          x: -1.785
+          y: 2.289
+          z: 0.0
+        orientation:
+          x: 0.0
+          y: 0.0
+          z: 0.707
+          w: 0.707
+        frame_id: "map"
+      
+      # Room waypoints
+      "3410":
+        position:
+          x: -1.657
+          y: 4.960
+          z: 0.0
+        orientation:
+          x: 0.0
+          y: 0.0
+          z: -0.707
+          w: 0.707
+        frame_id: "map"
