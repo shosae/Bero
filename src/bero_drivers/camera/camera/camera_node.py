@@ -47,7 +47,7 @@ class CameraNode(Node):
         gst_str = (
             f"nvarguscamerasrc ! "
             f"video/x-raw(memory:NVMM), width={self.width}, height={self.height}, format=NV12, framerate={self.fps}/1 ! "  # noqa
-            f"nvvidconv flip-method={flip_method} ! video/x-raw, format=BGRx ! "
+            f"nvvidconv flip-method={flip_method} ! video/x-raw, width=960, height=540, format=BGRx ! "
             f"videoconvert ! video/x-raw, format=BGR ! "
             f"appsink max-buffers=1 drop=true sync=false"
         )
@@ -81,8 +81,9 @@ class CameraNode(Node):
             msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
             msg.header.stamp = self.get_clock().now().to_msg()
             msg.header.frame_id = self.frame_id
-
-            self.image_pub.publish(msg)
+            
+            if rclpy.ok():
+                self.image_pub.publish(msg)
 
     def destroy_node(self):
         """thread/카메라 정리."""
