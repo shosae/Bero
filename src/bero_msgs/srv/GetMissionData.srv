@@ -3,4 +3,4 @@
 # Response
 string target_room_number
 unique_identifier_msgs/UUID mission_uuid
-bool success  # 미션 진행 중이면 true
+bool success

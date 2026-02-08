@@ -49,7 +49,7 @@ MissionManager::MissionManager(const rclcpp::NodeOptions & options)
   single_floor_xml_path_ = package_dir + "/behavior_trees/single_floor_mission.xml";
 
   // Service Server(Get Mission Data)
-  get_mission_data_service_server_ = this->create_service<bero_ui_nav::srv::GetMissionData>(
+  get_mission_data_service_server_ = this->create_service<bero_msgs::srv::GetMissionData>(
     "get_mission_data",
     std::bind(
       &MissionManager::handle_get_mission_data,
@@ -230,8 +230,8 @@ void MissionManager::execute_custom_navigation_async(
 // ========== Service Callback ==========
 
 void MissionManager::handle_get_mission_data(
-  const std::shared_ptr<bero_ui_nav::srv::GetMissionData::Request>/*request*/,
-  std::shared_ptr<bero_ui_nav::srv::GetMissionData::Response> response)
+  const std::shared_ptr<bero_msgs::srv::GetMissionData::Request>/*request*/,
+  std::shared_ptr<bero_msgs::srv::GetMissionData::Response> response)
 {
   const auto mission = get_mission_state();
 

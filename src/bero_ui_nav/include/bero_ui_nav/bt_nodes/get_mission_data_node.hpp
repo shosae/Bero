@@ -8,13 +8,13 @@
 #include "nav2_behavior_tree/bt_service_node.hpp"
 
 #include "unique_identifier_msgs/msg/uuid.hpp"
-#include "bero_ui_nav/srv/get_mission_data.hpp"
+#include "bero_msgs/srv/get_mission_data.hpp"
 
 namespace bero_ui_nav
 {
 
 class GetMissionDataNode
-  : public nav2_behavior_tree::BtServiceNode<bero_ui_nav::srv::GetMissionData>
+  : public nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>
 {
 public:
   GetMissionDataNode(const std::string & service_name, const BT::NodeConfiguration & conf);
@@ -31,7 +31,7 @@ public:
   void on_tick() override;
   void halt() override;
   BT::NodeStatus on_completion(
-    std::shared_ptr<bero_ui_nav::srv::GetMissionData::Response> response) override;
+    std::shared_ptr<bero_msgs::srv::GetMissionData::Response> response) override;
 };
 
 }  // namespace bero_ui_nav

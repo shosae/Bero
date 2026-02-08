@@ -11,8 +11,8 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include "std_msgs/msg/string.hpp"
-#include "bero_ui_nav/srv/get_mission_data.hpp"
-#include "bero_ui_nav/action/deliver_to_room.hpp"
+#include "bero_msgs/srv/get_mission_data.hpp"
+#include "bero_msgs/action/deliver_to_room.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 
 
@@ -21,7 +21,7 @@ namespace bero_ui_nav
 class MissionManager : public rclcpp::Node
 {
 public:
-  using DeliverToRoom = bero_ui_nav::action::DeliverToRoom;
+  using DeliverToRoom = bero_msgs::action::DeliverToRoom;
   using GoalHandleDeliverToRoom = rclcpp_action::ServerGoalHandle<DeliverToRoom>;
 
   using NavigateToPose = nav2_msgs::action::NavigateToPose;
@@ -36,7 +36,7 @@ private:
   rclcpp_action::Server<DeliverToRoom>::SharedPtr deliver_to_room_action_server_;
 
   // Service server for /get_mission_data
-  rclcpp::Service<bero_ui_nav::srv::GetMissionData>::SharedPtr get_mission_data_service_server_;
+  rclcpp::Service<bero_msgs::srv::GetMissionData>::SharedPtr get_mission_data_service_server_;
 
   // Action client for /navigate_to_pose(Nav2)
   rclcpp_action::Client<NavigateToPose>::SharedPtr nav2_client_;
@@ -90,8 +90,8 @@ private:
 
   // ========== Service callback ==========
   void handle_get_mission_data(
-    const std::shared_ptr<bero_ui_nav::srv::GetMissionData::Request> request,
-    std::shared_ptr<bero_ui_nav::srv::GetMissionData::Response> response);
+    const std::shared_ptr<bero_msgs::srv::GetMissionData::Request> request,
+    std::shared_ptr<bero_msgs::srv::GetMissionData::Response> response);
 
   // ========== Subscription Callback ==========
   void on_bt_phase(const std_msgs::msg::String::SharedPtr msg);
