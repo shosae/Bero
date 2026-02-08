@@ -16,14 +16,7 @@ find_package(unique_identifier_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(nav2_behavior_tree REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
-find_package(rosidl_default_generators REQUIRED)
-
-# Generate interfaces
-rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/GetMissionData.srv"
-  "action/DeliverToRoom.action"
-  DEPENDENCIES unique_identifier_msgs
-)
+find_package(bero_msgs REQUIRED)
 
 # ========== Mission Manager Executable ==========
 
@@ -35,6 +28,7 @@ ament_target_dependencies(mission_manager
   ament_index_cpp
   rclcpp
   rclcpp_action
+  bero_msgs
   nav2_msgs
   geometry_msgs
   std_msgs
@@ -42,12 +36,6 @@ ament_target_dependencies(mission_manager
 
 # Include directories for mission_manager
 target_include_directories(mission_manager PRIVATE include)
-
-# Link custom interfaces for mission_manager
-rosidl_get_typesupport_target(cpp_typesupport_target
-  ${PROJECT_NAME} "rosidl_typesupport_cpp")
-target_link_libraries(mission_manager "${cpp_typesupport_target}")
-
 
 # ========== BT Plugin Library ==========
 
@@ -61,6 +49,7 @@ add_library(${PROJECT_NAME}_bt_nodes SHARED
 )
 ament_target_dependencies(${PROJECT_NAME}_bt_nodes
   rclcpp
+  bero_msgs
   geometry_msgs
   std_msgs
   unique_identifier_msgs
@@ -74,12 +63,6 @@ target_include_directories(${PROJECT_NAME}_bt_nodes PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-
-# Link custom interfaces for BT plugins
-rosidl_get_typesupport_target(cpp_typesupport_target_bt
-  ${PROJECT_NAME} "rosidl_typesupport_cpp")
-target_link_libraries(${PROJECT_NAME}_bt_nodes "${cpp_typesupport_target_bt}")
-
 
 # ========== Install ==========
 

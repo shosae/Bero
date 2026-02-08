@@ -8,7 +8,7 @@ namespace bero_ui_nav
 GetMissionDataNode::GetMissionDataNode(
   const std::string & service_name,
   const BT::NodeConfiguration & conf)
-: nav2_behavior_tree::BtServiceNode<bero_ui_nav::srv::GetMissionData>(service_name, conf)
+: nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>(service_name, conf)
 {
 }
 
@@ -23,14 +23,14 @@ void GetMissionDataNode::on_tick()
 
 void GetMissionDataNode::halt()
 {
-  nav2_behavior_tree::BtServiceNode<bero_ui_nav::srv::GetMissionData>::halt();
+  nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>::halt();
   RCLCPP_DEBUG(node_->get_logger(), "[GetMissionDataNode] halted");
 }
 
 // ========== Completion ==========
 
 BT::NodeStatus GetMissionDataNode::on_completion(
-  std::shared_ptr<bero_ui_nav::srv::GetMissionData::Response> response)
+  std::shared_ptr<bero_msgs::srv::GetMissionData::Response> response)
 {
   if (response->success) {
     setOutput("target_room", response->target_room_number);

@@ -24,7 +24,7 @@ from rclpy.action import ActionClient
 from rclpy.qos import QoSProfile, DurabilityPolicy
 
 from unique_identifier_msgs.msg import UUID
-from bero_ui_nav.action import DeliverToRoom
+from bero_msgs.action import DeliverToRoom
 
 
 class DeliverToRoomActionClient(Node):
