@@ -69,7 +69,7 @@ class DoorStateMonitor(Node):
         # ---------------- Runtime Variables ----------------
         self._latest_frame = None
         self._last_img_stamp = None
-        self._enabled = False
+        self._infer_enabled = False
         self._last_stable_status = "unknown"
         self._last_published_status = "unknown"
         self._counts = {"opened": 0, "closed": 0, "moving": 0}
@@ -143,8 +143,8 @@ class DoorStateMonitor(Node):
     def infer_enable_cb(self, msg: Bool):
         """추론 활성화/비활성화 구독 콜백."""
         with self._lock:
-            self._enabled = msg.data
-            if not self._enabled:
+            self._infer_enabled = msg.data
+            if not self._infer_enabled:
                 self._last_stable_status = "unknown"
                 self._last_published_status = "unknown"
                 self._counts = {"opened": 0, "closed": 0, "moving": 0}
@@ -158,10 +158,10 @@ class DoorStateMonitor(Node):
         has_subscribers = self.viz_pub.get_subscription_count() > 0
 
         with self._lock:
-            if not self._enabled and not has_subscribers:
+            if not self._infer_enabled and not has_subscribers:
                 return
             frame_msg = self._latest_frame
-            enabled = self._enabled
+            enabled = self._infer_enabled
             counts_viz = self._counts.copy()
 
         # 이미지가 없을 경우
@@ -229,7 +229,7 @@ class DoorStateMonitor(Node):
         # 추론 결과 처리
         status = None
         with self._lock:
-            if self._enabled:
+            if self._infer_enabled:
                 self._update_counts(detected_state)
                 current_status = None
 
