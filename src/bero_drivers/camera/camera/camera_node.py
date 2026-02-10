@@ -47,7 +47,7 @@ class CameraNode(Node):
         gst_str = (
             f"nvarguscamerasrc ! "
             f"video/x-raw(memory:NVMM), width={self.width}, height={self.height}, format=NV12, framerate={self.fps}/1 ! "  # noqa
-            f"nvvidconv flip-method={flip_method} ! video/x-raw, width=960, height=540, format=BGRx ! "  # noqa
+            f"nvvidconv flip-method={flip_method} ! video/x-raw, width=960, height=544, format=BGRx ! "  # noqa
             f"videoconvert ! video/x-raw, format=BGR ! "
             f"appsink max-buffers=1 drop=true sync=false"
         )
