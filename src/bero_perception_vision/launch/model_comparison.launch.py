@@ -41,7 +41,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'model_file': pt_path,
-            'imgsz': [540, 960],
+            'imgsz': [544, 960],
         }],
         remappings=[
             ('/elevator/door_status', '/elevator/door_status_pt'),

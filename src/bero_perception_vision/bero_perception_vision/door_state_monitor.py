@@ -196,13 +196,14 @@ class DoorStateMonitor(Node):
             results = self._model.predict(
                 source=frame_bgr,
                 imgsz=self.imgsz,
-                rect=True,
                 conf=self.conf,
                 iou=self.iou,
                 max_det=1,
                 device=self._device,
                 verbose=False,
+                stream=True,
             )
+            result = next(results)  # generator에서 첫 번째 결과 추출
         except Exception as e:
             self.get_logger().debug(f"YOLO inference failed: {e}")
             return
@@ -211,9 +212,9 @@ class DoorStateMonitor(Node):
         detections = []
         detected_state = "unknown"
 
-        if results[0].boxes:
-            box = results[0].boxes[0]
-            cls_name = results[0].names[int(box.cls[0].item())]
+        if result.boxes:
+            box = result.boxes[0]
+            cls_name = result.names[int(box.cls[0].item())]
             conf = float(box.conf.item())
 
             if has_subscribers:
