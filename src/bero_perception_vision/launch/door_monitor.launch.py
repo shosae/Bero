@@ -10,7 +10,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     pkg_path = get_package_share_directory('bero_perception_vision')
-    model_path = os.path.join(pkg_path, 'models', 'yolo26_544_960_half_e2e_simplify.engine')
+    model_path = os.path.join(pkg_path, 'models', 'yolo26s_544_960_half_e2e_simplify.engine')
 
     show_viz_arg = DeclareLaunchArgument(
         'show_viz',
