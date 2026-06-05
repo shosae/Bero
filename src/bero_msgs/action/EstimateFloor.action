@@ -1,0 +1,12 @@
+# Goal
+int32 start_floor
+int32 target_floor
+---
+# Result
+bool success
+int32 current_floor
+string message
+---
+# Feedback
+string decision
+int32 current_floor

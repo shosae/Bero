@@ -12,6 +12,7 @@
   <!-- Message dependencies -->
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>action_msgs</depend>
   <depend>unique_identifier_msgs</depend>
 
   <!-- Build interfaces -->
