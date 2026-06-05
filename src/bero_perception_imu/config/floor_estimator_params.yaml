@@ -1,0 +1,38 @@
+floor_estimator:
+  ros__parameters:
+
+    # --- Environment ---
+    min_floor: 0   # 추정 가능 최소 층
+    max_floor: 6   # 추정 가능 최대 층
+    h_L1_m: 5.0    # L~1층 높이
+    h_12_m: 5.0    # 1~2층 높이
+    h_norm_m: 3.0  # 일반적인 층고
+
+    # --- IMU preprocessing ---
+    baseline_mps2: 9.84     # 정지 상태 기준값
+    acc_clip_mps2_abs: 1.0  # baseline 제거 후 가속도 절댓값 clipping
+
+    # --- IMU Resampling / filtering ---
+    raw_fs_hz: 143.0   # 원본 샘플링 주파수
+    fs_hz: 40.0        # 리샘플링 주파수
+    fc_hz: 2.0         # LPF cutoff 주파수
+    filt_order: 4      # 출발 도착 판정용 sosfilt 차수
+    filtfilt_order: 4  # 적분용 sosfiltfilt 차수
+
+    # --- Segment acceptance ---
+    min_seg_duration_sec: 2.0  # 세그먼트 판정 최소 시간
+    min_seg_height_m: 1.0      # 세그먼트 판정 최소 거리
+
+    # --- Segment start buffer & trim ---
+    pre_buf_lpf_delay_sec: 0.3       # LPF delay로 인한 출발 지연 시간
+    pre_buf_ringing_trim_sec: 0.375  # filtfilt 앞쪽 ringing 구간 제거할 시간
+
+    # --- Segment detection ---
+    acc_high_mps2_abs: 0.08  # 출발 판정 가속도 절댓값 임계값
+    acc_low_mps2_abs: 0.05   # 정지 판정 가속도 절댓값 임계값
+    std_low_mps2: 0.08       # 정지 판정 가속도 표준편차 임계값
+    stop_speed_mps_abs: 0.5  # 정지 판정 취소용 속도 절댓값 임계값
+    stop_duration_sec: 0.7   # 정지 조건이 유지되어야 하는 시간
+
+    # --- Segment Integration ---
+    zupt_window_sec: 0.2  # 정지 구간 속도 추정용 window
