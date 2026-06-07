@@ -1,0 +1,189 @@
+valid_floors: [0, 2, 3, 4, 5, 6]
+
+waypoints:
+  # Base camp
+  basecamp:
+    position:
+      x: 4.631
+      y: 3.740
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.001
+      w: 1.000
+    frame_id: "map"
+
+  # Room waypoints
+  "06":
+    position:
+      x: 26.191
+      y: -2.811
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: -0.430
+      w: 0.903
+    frame_id: "map"
+
+  "07":
+    position:
+      x: 17.638
+      y: -3.423
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: -0.906
+      w: 0.424
+    frame_id: "map"
+
+  "08":
+    position:
+      x: 5.249
+      y: -4.036
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: -0.902
+      w: 0.431
+    frame_id: "map"
+
+  "09":
+    position:
+      x: 17.664
+      y: -1.637
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.945
+      w: 0.328
+    frame_id: "map"
+
+  "10":
+    position:
+      x: 26.354
+      y: -1.098
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.469
+      w: 0.883
+    frame_id: "map"
+
+  # Second Floor - 맵 구조가 다름
+  "206":
+    position:
+      x: 24.621
+      y: -6.650
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: -0.186
+      w: 0.983
+    frame_id: "map"
+
+  "207":
+    position:
+      x: 18.164
+      y: -5.954
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: -0.989
+      w: 0.151
+    frame_id: "map"
+
+  "208":
+    position:
+      x: 4.034
+      y: -2.972
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: -0.926
+      w: 0.378
+    frame_id: "map"
+
+  "209":
+    position:
+      x: 17.774
+      y: -4.887
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.905
+      w: 0.425
+    frame_id: "map"
+    
+  "210":
+    position:
+      x: 24.941
+      y: -4.925
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.252
+      w: 0.968
+    frame_id: "map"
+
+  # 상, 하행 버튼 앞
+  elevator_updown_button: 
+    position:
+      x: 1.886
+      y: 0.845
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: -1.000
+      w: 0.012
+    frame_id: "map"
+
+  # 진입 전 대기
+  elevator_entrance:
+    position:
+      x: 2.830
+      y: -0.023
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 1.000
+      w: 0.003
+    frame_id: "map"
+
+  # 진입 후 엘리베이터 내부 버튼 앞
+  elevator_inside:
+    position:
+      x: -0.483
+      y: 0.256
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 1.0
+    frame_id: "map"
+
+  # 엘리베이터 하차 장소
+  elevator_exit:
+    position:
+      x: 2.145
+      y: 0.028
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: -0.007
+      w: 1.000  
+    frame_id: "map"
