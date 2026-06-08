@@ -14,6 +14,7 @@ find_package(unique_identifier_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/DeliverToRoom.action"
   "action/EstimateFloor.action"
+  "action/PressButton.action"
   "srv/GetMissionData.srv"
   "msg/DoorStateViz.msg"
   DEPENDENCIES unique_identifier_msgs std_msgs sensor_msgs
