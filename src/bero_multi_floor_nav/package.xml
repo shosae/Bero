@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>bero_multi_floor_nav</name>
+  <version>0.0.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="phone13324@gmail.com">shosae</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- ROS2 dependencies -->
+  <depend>rclpy</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <!-- Message dependencies -->
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>unique_identifier_msgs</depend>
+
+  <!-- Bero dependencies -->
+  <depend>bero_msgs</depend>
+  <exec_depend>bero_ui</exec_depend>
+  <exec_depend>bero_bringup</exec_depend>
+  <exec_depend>bero_navigation</exec_depend>
+  <exec_depend>bero_perception_imu</exec_depend>
+  <exec_depend>bero_perception_vision</exec_depend>
+
+  <!-- Nav2 dependencies -->
+  <depend>nav2_msgs</depend>
+  <depend>nav2_behavior_tree</depend>
+  <exec_depend>nav2_common</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+
+  <!-- UI dependencies -->
+  <exec_depend>rviz2</exec_depend>
+
+  <!-- Third-party dependencies -->
+  <depend>behaviortree_cpp_v3</depend>
+  <depend>yaml-cpp</depend>
+
+  <!-- Test dependencies -->
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
