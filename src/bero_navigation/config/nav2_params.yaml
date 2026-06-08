@@ -100,6 +100,7 @@ bt_navigator:
       - nav2_assisted_teleop_cancel_bt_node
       - nav2_drive_on_heading_cancel_bt_node
       - nav2_is_battery_charging_condition_bt_node
+      - bero_multi_floor_nav_bt_nodes  # multi_floor_mission
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:
@@ -108,6 +109,8 @@ bt_navigator_navigate_through_poses_rclcpp_node:
 bt_navigator_navigate_to_pose_rclcpp_node:
   ros__parameters:
     use_sim_time: False
+    multi_floor_waypoints_file_path: ""
+    multi_floor_map_base_path: ""
 
 controller_server:
   ros__parameters:
