@@ -17,17 +17,22 @@ AzOffsetCalibratorNode::AzOffsetCalibratorNode(
 
 void AzOffsetCalibratorNode::on_tick()
 {
- // 빈 요청
+  // 빈 요청
 }
 
-BT::NodeStatus AzOffsetCalibratorNode::on_completion(std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+BT::NodeStatus AzOffsetCalibratorNode::on_completion(
+  std::shared_ptr<std_srvs::srv::Trigger::Response> response)
 {
   if (!response->success) {
-    RCLCPP_WARN(node_->get_logger(), "[AzOffsetCalibratorNode] IMU Offset Calibration failed: %s", response->message.c_str());
+    RCLCPP_WARN(
+      node_->get_logger(), "[AzOffsetCalibratorNode] IMU Offset Calibration failed: %s",
+      response->message.c_str());
     return BT::NodeStatus::FAILURE;
   }
 
-  RCLCPP_INFO(node_->get_logger(), "[AzOffsetCalibratorNode] IMU Offset Calibration successful: %s", response->message.c_str());
+  RCLCPP_INFO(
+    node_->get_logger(), "[AzOffsetCalibratorNode] IMU Offset Calibration successful: %s",
+    response->message.c_str());
   return BT::NodeStatus::SUCCESS;
 }
 

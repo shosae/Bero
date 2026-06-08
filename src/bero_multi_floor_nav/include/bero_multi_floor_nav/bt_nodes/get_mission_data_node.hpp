@@ -21,11 +21,12 @@ public:
 
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts({
-      BT::OutputPort<std::string>("target_room", "4-digit full room number"),
-      BT::OutputPort<std::string>("target_floor", "Extracted floor number"),
-      BT::OutputPort<unique_identifier_msgs::msg::UUID>("mission_uuid", "Mission UUID")
-    });
+    return providedBasicPorts(
+      {
+        BT::OutputPort<std::string>("target_room", "4-digit full room number"),
+        BT::OutputPort<std::string>("target_floor", "Extracted floor number"),
+        BT::OutputPort<unique_identifier_msgs::msg::UUID>("mission_uuid", "Mission UUID")
+      });
   }
 
   void on_tick() override;

@@ -96,7 +96,7 @@
       <!-- 목표 호실로 이동 -->
       <SubTreePlus ID="NavigateToWaypoint" target_name="{target_room}" __autoremap="true" />
 
-      <!-- 배달 완료 확인 대기 -->
+      <!-- 배달 완료 확인 대기, 실패 시에도 basecamp로 되돌아가도록 -->
       <Action ID="PhaseManager" phase="confirm"/>
       <Action ID="WaitForConfirmation" confirm_topic="/pickup/confirm" mission_uuid="{mission_uuid}" />
 

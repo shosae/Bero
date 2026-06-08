@@ -6,7 +6,7 @@
 #include <cctype>
 #include <exception>
 
-#include <yaml-cpp/yaml.h>
+#include "yaml-cpp/yaml.h"
 
 namespace bero_multi_floor_nav
 {
@@ -22,7 +22,7 @@ GetWaypointNode::GetWaypointNode(
   if (!config().blackboard->get("node", node_)) {
     throw BT::RuntimeError("GetWaypointNode: missing required blackboard entry [node]");
   }
-  
+
   if (!waypoints_loaded_) {
     load_waypoints();
     waypoints_loaded_ = true;
@@ -78,12 +78,13 @@ void GetWaypointNode::load_waypoints()
 
     std::string yaml_file;
     if (!node_->get_parameter("multi_floor_waypoints_file_path", yaml_file)) {
-      throw BT::RuntimeError("GetWaypointNode Init Failed: 'multi_floor_waypoints_file_path' parameter not found");
+      throw BT::RuntimeError("GetWaypointNode Init Failed: waypoints map file path parameter not found");
     }
 
     YAML::Node config = YAML::LoadFile(yaml_file);
     if (!config["waypoints"]) {
-      RCLCPP_ERROR(node_->get_logger(), "[GetWaypointNode] 'waypoints' key not found in %s", yaml_file.c_str());
+      RCLCPP_ERROR(
+        node_->get_logger(), "[GetWaypointNode] 'waypoints' key not found in %s", yaml_file.c_str());
       throw BT::RuntimeError("GetWaypointNode Init Failed: 'waypoints' key missing");
     }
 
@@ -104,9 +105,8 @@ void GetWaypointNode::load_waypoints()
 
       waypoints_[name] = pose;
     }
-    
-    RCLCPP_INFO(node_->get_logger(), "[GetWaypointNode] Loaded %lu waypoints from file", waypoints_.size());
 
+    RCLCPP_INFO(node_->get_logger(), "[GetWaypointNode] Loaded %lu waypoints from file", waypoints_.size());
   } catch (const std::exception & e) {
     RCLCPP_ERROR(node_->get_logger(), "[GetWaypointNode] Failed to load waypoints: %s", e.what());
     throw BT::RuntimeError(std::string("GetWaypointNode Init Failed: ") + e.what());

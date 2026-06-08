@@ -62,7 +62,7 @@ class MockActionServer(Node):
         self.get_logger().info(f'Ready (duration_sec={self.duration_sec})')
 
     def manual_status_cb(self, msg: String):
-        """외부에서 action 수동 종료"""
+        """외부에서 action 수동 종료."""
         with self._active_lock:
             if not self._is_active or self._current_target is None:
                 return

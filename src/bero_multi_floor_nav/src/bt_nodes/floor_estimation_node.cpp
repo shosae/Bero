@@ -28,7 +28,7 @@ void FloorEstimationNode::on_tick()
   goal_.start_floor = start_floor;
   goal_.target_floor = target_floor;
 
-    RCLCPP_INFO(
+  RCLCPP_INFO(
     node_->get_logger(),
     "[FloorEstimationNode] Sending goal: %d -> %d",
     start_floor, target_floor);

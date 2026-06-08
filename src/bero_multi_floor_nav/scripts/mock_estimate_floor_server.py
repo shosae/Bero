@@ -8,7 +8,7 @@ from rclpy.executors import MultiThreadedExecutor
 from bero_msgs.action import EstimateFloor
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from mock_action_server import MockActionServer
+from mock_action_server import MockActionServer  # noqa: E402
 
 
 class MockEstimateFloorServer(MockActionServer):
@@ -38,7 +38,7 @@ def main(args=None):
     node = MockEstimateFloorServer()
     executor = MultiThreadedExecutor()
     executor.add_node(node)
-    
+
     try:
         executor.spin()
     except KeyboardInterrupt:

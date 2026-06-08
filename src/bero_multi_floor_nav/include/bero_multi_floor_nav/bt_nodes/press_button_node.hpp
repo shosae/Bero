@@ -20,9 +20,10 @@ public:
 
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts({
-      BT::InputPort<std::string>("button", "Button to press")
-    });
+    return providedBasicPorts(
+      {
+        BT::InputPort<std::string>("button", "Button to press")
+      });
   }
 
   void on_tick() override;

@@ -20,10 +20,11 @@ public:
 
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts({
-      BT::InputPort<int>("start_floor", 0, "Current floor number"),
-      BT::InputPort<int>("target_floor", 1, "Target floor number")
-    });
+    return providedBasicPorts(
+      {
+        BT::InputPort<int>("start_floor", 0, "Current floor number"),
+        BT::InputPort<int>("target_floor", 1, "Target floor number")
+      });
   }
 
   void on_tick() override;

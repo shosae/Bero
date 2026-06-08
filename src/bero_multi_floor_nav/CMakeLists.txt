@@ -22,7 +22,7 @@ find_package(yaml-cpp REQUIRED)
 # ========== Mission Manager Executable ==========
 
 # Add mission manager as executable
-add_executable(mission_manager 
+add_executable(mission_manager
   src/mission_manager.cpp
 )
 target_link_libraries(mission_manager yaml-cpp)
@@ -116,5 +116,25 @@ install(PROGRAMS
   scripts/mock_door_status_server.py
   DESTINATION lib/${PROJECT_NAME}
 )
+
+# ========== Lint Tests ==========
+# Lint tests (excluding copyright)
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE "ament_cmake_copyright")
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE "ament_cmake_cpplint")
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE "ament_cmake_flake8")
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE "ament_cmake_uncrustify")
+  ament_lint_auto_find_test_dependencies()
+
+  find_package(ament_cmake_cpplint REQUIRED)
+  ament_cpplint(FILTERS "-legal/copyright" MAX_LINE_LENGTH 110)
+
+  find_package(ament_cmake_flake8 REQUIRED)
+  ament_flake8(MAX_LINE_LENGTH 110)
+
+  find_package(ament_cmake_uncrustify REQUIRED)
+  ament_uncrustify(MAX_LINE_LENGTH 110)
+endif()
 
 ament_package()

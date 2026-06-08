@@ -25,7 +25,7 @@ class MockDoorStatusServer(Node):
         self.get_logger().info('Mock door status server ready')
 
     def monitor_enable_cb(self, msg: Bool):
-        """enable 신호를 받아서 duration_sec 뒤 opened 상태를 발행한다."""
+        """Enable 신호를 받아서 duration_sec 뒤 opened 상태를 발행한다."""
         if msg.data:
             if self.open_timer is not None:
                 self.destroy_timer(self.open_timer)
@@ -38,7 +38,7 @@ class MockDoorStatusServer(Node):
             self.get_logger().info('Door monitoring disabled')
 
     def publish_opened(self):
-        """opened 상태를 발행한다."""
+        """Publish opened state."""
         if self.open_timer is not None:
             self.destroy_timer(self.open_timer)
             self.open_timer = None

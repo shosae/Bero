@@ -73,18 +73,18 @@ BT::NodeStatus WaitForDoorOpenNode::onRunning()
 
   if (elapsed > timeout_sec) {
     RCLCPP_ERROR(node_->get_logger(), "[WaitForDoorOpenNode] Timeout waiting for door open");
-    
+
     std_msgs::msg::Bool msg;
     msg.data = false;
     monitor_enable_pub_->publish(msg);
-    
+
     return BT::NodeStatus::FAILURE;
   }
 
   // 문 열림 체크
   if (door_opened_) {
     RCLCPP_INFO(node_->get_logger(), "[WaitForDoorOpenNode] Elevator door opening/opened");
-    
+
     std_msgs::msg::Bool msg;
     msg.data = false;
     monitor_enable_pub_->publish(msg);
@@ -98,12 +98,11 @@ BT::NodeStatus WaitForDoorOpenNode::onRunning()
 void WaitForDoorOpenNode::onHalted()
 {
   RCLCPP_DEBUG(node_->get_logger(), "[WaitForDoorOpenNode] Halted");
-  
+
   // 모니터링 종료
   std_msgs::msg::Bool msg;
   msg.data = false;
   monitor_enable_pub_->publish(msg);
-
 }
 
 void WaitForDoorOpenNode::elevator_status_callback(const std_msgs::msg::String::SharedPtr msg)

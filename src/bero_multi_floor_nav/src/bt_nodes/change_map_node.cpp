@@ -63,7 +63,7 @@ void ChangeMapNode::on_tick()
   }
 
   RCLCPP_INFO(node_->get_logger(), "[ChangeMapNode] Changing map to floor %d: %s", floor, map_path.c_str());
-  
+
   request_->map_url = map_path;
 }
 
@@ -84,8 +84,11 @@ BT::NodeStatus ChangeMapNode::on_completion(std::shared_ptr<nav2_msgs::srv::Load
   geometry_msgs::msg::PoseStamped input_pose;
   if (getInput("initial_pose", input_pose)) {
     init_msg.pose.pose = input_pose.pose;
-    RCLCPP_INFO(node_->get_logger(), "[ChangeMapNode] Setting initial pose: [%.2f, %.2f]",
-      input_pose.pose.position.x, input_pose.pose.position.y);
+    RCLCPP_INFO(
+      node_->get_logger(),
+      "[ChangeMapNode] Setting initial pose: [%.2f, %.2f]",
+      input_pose.pose.position.x,
+      input_pose.pose.position.y);
   } else {
     init_msg.pose.pose.position.x = 0.0;
     init_msg.pose.pose.position.y = 0.0;
@@ -100,11 +103,11 @@ BT::NodeStatus ChangeMapNode::on_completion(std::shared_ptr<nav2_msgs::srv::Load
   }
   init_msg.pose.covariance[0] = 0.09;  // x (약 30cm)
   init_msg.pose.covariance[7] = 0.09;  // y (약 30cm)
-  init_msg.pose.covariance[35] = 0.068; // yaw (약 15도)
+  init_msg.pose.covariance[35] = 0.068;  // yaw (약 15도)
 
   initialpose_pub_->publish(init_msg);
   RCLCPP_INFO(node_->get_logger(), "[ChangeMapNode] Initial pose published successfully");
-  
+
   return BT::NodeStatus::SUCCESS;
 }
 

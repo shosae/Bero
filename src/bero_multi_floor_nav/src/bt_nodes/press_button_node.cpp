@@ -20,10 +20,10 @@ void PressButtonNode::on_tick()
     should_send_goal_ = false;
     return;
   }
-  
+
   // 눌러야 할 button 정보 입력
   goal_.button = button;
-  
+
   RCLCPP_INFO(node_->get_logger(), "[PressButtonNode] Sending goal for button: %s", goal_.button.c_str());
 }
 

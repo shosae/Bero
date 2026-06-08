@@ -55,6 +55,7 @@ BT_STAGES = [
 @dataclass
 class MissionState:
     """Current mission state for UI display."""
+
     current_stage: int = 0
     target_room: str = "10"
     target_floor: str = "4"
@@ -65,15 +66,15 @@ class MissionState:
 
 class MockUINode(Node):
     """Multi floor nav 전용 mock UI."""
-    
+
     def __init__(self, ui_queue: queue.Queue):
         super().__init__('mock_bt_ui')
         self.ui_queue = ui_queue
         self.callback_group = ReentrantCallbackGroup()
         self.waypoints: Dict[str, Any] = {}
-        
+
         self.load_waypoints()
-        
+
         # ========== Publishers ==========
         self.initialpose_pub = self.create_publisher(
             PoseWithCovarianceStamped, '/initialpose', 10)
@@ -92,45 +93,45 @@ class MockUINode(Node):
         self.bt_phase_sub = self.create_subscription(
             String, '/bt_phase', self.on_bt_phase, 10,
             callback_group=self.callback_group)
-                
+
         self.get_logger().info('[MockUINode] Initialized with waypoints loaded')
-    
+
     def load_waypoints(self):
         """Waypoints 불러오기."""
         try:
             pkg_dir = get_package_share_directory('bero_multi_floor_nav')
             yaml_path = os.path.join(pkg_dir, 'config', 'waypoints.yaml')
-            
+
             with open(yaml_path, 'r') as f:
                 data = yaml.safe_load(f)
-            
+
             self.waypoints = data.get('waypoints', {})
             self.get_logger().info(f'[MockUINode] Loaded {len(self.waypoints)} waypoints')
         except Exception as e:
             self.get_logger().warn(f'[MockUINode] Failed to load waypoints: {e}')
             self.waypoints = {}
-    
+
     def get_waypoint(self, name: str) -> Optional[Dict]:
         return self.waypoints.get(name)
-    
+
     def get_all_waypoint_names(self) -> list:
         return list(self.waypoints.keys())
-    
+
     # ========== Subscription Callbacks ==========
-    
+
     def on_bt_phase(self, msg: String):
         """BT phase 업데이트."""
         self.ui_queue.put(('phase', msg.data))
         self.query_mission_data()
 
     def query_mission_data(self):
-        """Action 정보 획득."""
+        """Query action information."""
         if not self.get_mission_data_client.service_is_ready():
             return
-        
+
         req = GetMissionData.Request()
         future = self.get_mission_data_client.call_async(req)
-        
+
         def cb(fut):
             try:
                 res = fut.result()
@@ -138,11 +139,11 @@ class MockUINode(Node):
                     self.ui_queue.put(('mission_data', (res.target_room_number, res.mission_uuid.uuid)))
             except Exception as e:
                 self.get_logger().error(f"Failed to get mission data: {e}")
-        
+
         future.add_done_callback(cb)
-    
+
     # ========== Publisher Methods ==========
-    
+
     def publish_floor_arrival(self, floor: str):
         """엘레베이터 도착 신호 publish."""
         msg = String()
@@ -163,7 +164,7 @@ class MockUINode(Node):
         msg.data = 'opened'
         self.elevator_status_pub.publish(msg)
         self.get_logger().info('[MockUINode] Published opened')
-    
+
     def teleport_to_waypoint(self, waypoint_name: str):
         """지정된 waypoint로 로봇 이동."""
         import math
@@ -171,16 +172,16 @@ class MockUINode(Node):
         if not wp:
             self.get_logger().error(f'[MockUINode] Waypoint not found: {waypoint_name}')
             return False
-        
+
         qx = float(wp['orientation'].get('x', 0.0))
         qy = float(wp['orientation'].get('y', 0.0))
         qz = float(wp['orientation']['z'])
         qw = float(wp['orientation']['w'])
-        
+
         mag = math.sqrt(qx*qx + qy*qy + qz*qz + qw*qw)
         if mag > 0:
             qx, qy, qz, qw = qx/mag, qy/mag, qz/mag, qw/mag
-        
+
         msg = PoseWithCovarianceStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = wp.get('frame_id', 'map')
@@ -191,7 +192,7 @@ class MockUINode(Node):
         msg.pose.pose.orientation.y = qy
         msg.pose.pose.orientation.z = qz
         msg.pose.pose.orientation.w = qw
-        
+
         self.initialpose_pub.publish(msg)
         self.get_logger().info(f'[MockUINode] Teleport to {waypoint_name}')
         return True
@@ -201,32 +202,32 @@ class MockUINode(Node):
 
 class MockUIWindow(QMainWindow):
     """BT Mock UI의 Main Window."""
-    
+
     phase_changed = pyqtSignal(str)
-    
+
     def __init__(self, node: MockUINode, ui_queue: queue.Queue):
         super().__init__()
         self.node = node
         self.ui_queue = ui_queue
         self.mission_state = MissionState()
-        
+
         self.init_ui()
         self.connect_signals()
         self.start_queue_timer()
         self.update_stage_display()
-    
+
     def init_ui(self):
         """UI 초기화."""
         self.setWindowTitle('BT Flow Test UI')
         self.setMinimumSize(550, 400)
         self.resize(550, 400)
-        
+
         central = QWidget()
         self.setCentralWidget(central)
         main_layout = QVBoxLayout(central)
         main_layout.setContentsMargins(12, 12, 12, 12)
         main_layout.setSpacing(10)
-        
+
         # ========== Mission Info ==========
         mission_group = QGroupBox('현재 Action')
         mission_layout = QHBoxLayout(mission_group)
@@ -236,30 +237,30 @@ class MockUIWindow(QMainWindow):
         self.mission_label.setStyleSheet('color: #4CAF50;')
         mission_layout.addWidget(self.mission_label)
         main_layout.addWidget(mission_group)
-        
+
         # ========== Current Stage ==========
         stage_group = QGroupBox('현재 스테이지')
         stage_layout = QVBoxLayout(stage_group)
-        
+
         # Stage 정보
         self.stage_label = QLabel('Stage 0: 호실 데이터 받기')
         self.stage_label.setFont(QFont('Arial', 14, QFont.Bold))
         self.stage_label.setAlignment(Qt.AlignCenter)
         stage_layout.addWidget(self.stage_label)
-        
+
         # Stage 버튼
         stage_nav = QHBoxLayout()
         self.prev_btn = QPushButton('< 이전')
         self.prev_btn.clicked.connect(self.prev_stage)
         stage_nav.addWidget(self.prev_btn)
-        
+
         self.next_btn = QPushButton('다음 >')
         self.next_btn.clicked.connect(self.next_stage)
         stage_nav.addWidget(self.next_btn)
         stage_layout.addLayout(stage_nav)
-        
+
         main_layout.addWidget(stage_group)
-        
+
         # ========== Action Button ==========
         self.action_btn = QPushButton('완료')
         self.action_btn.setMinimumHeight(80)
@@ -273,9 +274,9 @@ class MockUIWindow(QMainWindow):
         ''')
         self.action_btn.clicked.connect(self.execute_current_stage)
         main_layout.addWidget(self.action_btn)
-        
+
         main_layout.addStretch()
-        
+
         # Dark theme
         self.setStyleSheet('''
             QMainWindow { background-color: #1e1e1e; }
@@ -296,15 +297,15 @@ class MockUIWindow(QMainWindow):
             }
             QPushButton:hover { background-color: #555; }
         ''')
-    
+
     def connect_signals(self):
         self.phase_changed.connect(self.on_phase_update)
-    
+
     def start_queue_timer(self):
         self.queue_timer = QTimer()
         self.queue_timer.timeout.connect(self.process_queue)
         self.queue_timer.start(50)
-    
+
     def process_queue(self):
         try:
             while True:
@@ -315,14 +316,14 @@ class MockUIWindow(QMainWindow):
                     self.update_mission_data(data)
         except queue.Empty:
             pass
-    
+
     # ========== Stage Navigation ==========
-    
+
     def prev_stage(self):
         if self.mission_state.current_stage > 0:
             self.mission_state.current_stage -= 1
             self.update_stage_display()
-    
+
     def next_stage(self):
         if self.mission_state.current_stage < len(BT_STAGES) - 1:
             self.mission_state.current_stage += 1
@@ -336,14 +337,14 @@ class MockUIWindow(QMainWindow):
         self.mission_state.target_room = "10"
         self.mission_state.target_floor = "4"
         self.mission_state.mission_uuid = []
-        
+
         self.mission_label.setText('Action 대기 중...')
         self.update_stage_display()
-    
+
     def update_stage_display(self):
         stage = BT_STAGES[self.mission_state.current_stage]
         self.stage_label.setText(f"Stage {stage['stage']}: {stage['name']}")
-        
+
         action = stage['action']
         if action == 'nav':
             wp = stage.get('waypoint', '')
@@ -366,11 +367,11 @@ class MockUIWindow(QMainWindow):
             self.action_btn.setText("픽업 확인 완료")
         else:  # auto
             self.action_btn.setText("다음 스테이지")
-    
+
     def execute_current_stage(self):
         stage = BT_STAGES[self.mission_state.current_stage]
         action = stage['action']
-        
+
         if action == 'nav':
             wp = stage.get('waypoint', '')
             if wp == 'room':
@@ -387,15 +388,15 @@ class MockUIWindow(QMainWindow):
             target_floor = stage.get('floor', self.mission_state.target_floor)
             self.node.publish_floor_arrival(target_floor)
         elif action == 'confirm':
-            pass # 실제 UI에서 수행
-        
+            pass  # 실제 UI에서 수행
+
         self.next_stage()
-    
+
     def on_phase_update(self, phase: str):
         """호실 정보 추출."""
         if phase:
             self.mission_label.setText(f"{phase}")
-        
+
         import re
         match = re.search(r'(\d{3,4})호실', phase)
         if match:
@@ -421,7 +422,7 @@ class MockUIWindow(QMainWindow):
         room_number, uuid_bytes = data
         if not room_number:
             return
-        
+
         self.mission_state.target_room = room_number[-2:]
         if len(room_number) == 4:
             self.mission_state.target_floor = room_number[1]
@@ -435,11 +436,11 @@ class MockUIWindow(QMainWindow):
                 self.mission_state.target_room = room_number
             else:
                 self.mission_state.target_room = room_number[1:]
-        
+
         self.mission_state.mission_uuid = list(uuid_bytes) if uuid_bytes is not None else []
         self.mission_label.setText(f"{room_number}호실 배달 중")
         self.update_stage_display()
-    
+
     def closeEvent(self, event):
         self.queue_timer.stop()
         event.accept()
@@ -449,25 +450,25 @@ class MockUIWindow(QMainWindow):
 
 def main(args=None):
     rclpy.init(args=args)
-    
+
     ui_queue = queue.Queue()
     node = MockUINode(ui_queue)
-    
+
     executor = MultiThreadedExecutor()
     executor.add_node(node)
     spin_thread = threading.Thread(target=executor.spin, daemon=True)
     spin_thread.start()
-    
+
     app = QApplication(sys.argv)
     window = MockUIWindow(node, ui_queue)
     window.show()
-    
+
     try:
         exit_code = app.exec_()
     finally:
         node.destroy_node()
         rclpy.shutdown()
-    
+
     sys.exit(exit_code)
 
 

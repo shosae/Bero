@@ -22,10 +22,13 @@ public:
 
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts({
-      BT::InputPort<int>("floor", "Target floor number for map switch"),
-      BT::InputPort<geometry_msgs::msg::PoseStamped>("initial_pose", "Initial pose to publish after map switch")
-    });
+    return providedBasicPorts(
+      {
+        BT::InputPort<int>("floor", "Target floor number for map switch"),
+        BT::InputPort<geometry_msgs::msg::PoseStamped>(
+          "initial_pose",
+          "Initial pose to publish after map switch")
+      });
   }
 
   void on_tick() override;

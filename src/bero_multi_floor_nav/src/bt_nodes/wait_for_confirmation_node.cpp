@@ -68,7 +68,7 @@ BT::NodeStatus WaitForConfirmationNode::onStart()
   start_time_ = std::chrono::steady_clock::now();
 
   RCLCPP_INFO(
-    node_->get_logger(), "[WaitForConfirmationNode] Waiting on topic [%s] for mission UUID for [%.1f] seconds",  // NOLINT
+    node_->get_logger(), "[WaitForConfirmationNode] Waiting on topic [%s]'s mission UUID for [%.1f] seconds",
     confirm_topic->c_str(),
     timeout_sec_);
 

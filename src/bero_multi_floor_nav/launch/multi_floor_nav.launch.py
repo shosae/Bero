@@ -100,7 +100,7 @@ def generate_launch_description():
     nav2_params_with_overrides = RewrittenYaml(
         source_file=nav2_params_file,
         param_rewrites={
-            'bt_navigator_navigate_to_pose_rclcpp_node.ros__parameters.multi_floor_waypoints_file_path': waypoints_file,
+            'bt_navigator_navigate_to_pose_rclcpp_node.ros__parameters.multi_floor_waypoints_file_path': waypoints_file,  # noqa: E501
             'bt_navigator_navigate_to_pose_rclcpp_node.ros__parameters.multi_floor_map_base_path': map_base,
         },
     )
