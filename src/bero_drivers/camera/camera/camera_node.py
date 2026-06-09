@@ -21,9 +21,9 @@ class CameraNode(Node):
         super().__init__('camera_node')
 
         # ---------------- Declare Parameter ----------------
-        self.declare_parameter('width', 1920)
-        self.declare_parameter('height', 1080)
-        self.declare_parameter('fps', 30)
+        self.declare_parameter('width', 1280)
+        self.declare_parameter('height', 720)
+        self.declare_parameter('fps', 10)
         self.declare_parameter('rotate', True)
         self.declare_parameter('frame_id', 'camera')
 
@@ -49,6 +49,7 @@ class CameraNode(Node):
             f"video/x-raw(memory:NVMM), width={self.width}, height={self.height}, format=NV12, framerate={self.fps}/1 ! "  # noqa
             f"nvvidconv flip-method={flip_method} ! video/x-raw, width=960, height=544, format=BGRx ! "  # noqa
             f"videoconvert ! video/x-raw, format=BGR ! "
+            f"videorate ! video/x-raw, framerate={self.fps}/1 ! "
             f"appsink max-buffers=1 drop=true sync=false"
         )
 
