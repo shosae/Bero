@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="MainTree">
+  <!-- =====================================================
+       NavigateWithRecovery SubTree
+       - goal: 목표 위치 (PoseStamped)
+       ===================================================== -->
+  <BehaviorTree ID="NavigateWithRecovery">
+  
+    <!-- Waypoint 좌표로 이동 -->
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigatePipeline">
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePath">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </RecoveryNode>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ClearEntireCostmap name="ClearLocalCostmap" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingActions">
+            <ClearEntireCostmap name="ClearLocalCostmap-Recovery" service_name="local_costmap/clear_entirely_local_costmap"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Recovery" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </Sequence>
+          <Wait wait_duration="2"/>
+          <BackUp backup_dist="0.3" backup_speed="0.05"/>
+          <Spin spin_dist="1.57"/>
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+
+  <!-- =====================================================
+       NavigateToWaypoint SubTree
+       - target_name: 목적지(Waypoint) 이름
+       ===================================================== -->
+  <BehaviorTree ID="NavigateToWaypoint">
+    <Sequence name="NavigateSequence">
+
+      <!-- Waypoint 이름으로 좌표 조회 -->
+      <Action ID="GetWaypoint" waypoint_name="{target_name}" waypoint_pose="{goal}" />
+      <SubTreePlus ID="NavigateWithRecovery" goal="{goal}" __autoremap="true" />
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- =====================================================
+       다층 이동 MainTree 
+       ===================================================== -->
+  <BehaviorTree ID="MainTree">
+    <SequenceStar name="MultiFloorNav">
+
+      <!-- 목표 층수, 호실 획득 -->
+      <Action ID="GetMissionData" target_room="{target_room}" target_floor="{target_floor}" mission_uuid="{mission_uuid}" />
+
+      <!-- 엘리베이터 상하행 버튼 앞으로 이동 -->
+      <Action ID="PhaseManager" phase="moving_to_room"/>
+      <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_updown_button" __autoremap="true" />
+
+      <!-- 상승 버튼 누르기 -->
+      <Action ID="PressButton" button="up" />
+
+      <!-- 엘리베이터 입구 앞으로 이동 -->
+      <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_entrance" __autoremap="true" />
+
+      <!-- accel z offset 보정 - 실패해도 기존 baseline 유지하며 진행 -->
+      <ForceSuccess>
+        <Action ID="AzOffsetCalibrator" server_timeout="5000" />
+      </ForceSuccess>
+
+      <!-- 엘리베이터 문 열림 대기 -->
+      <Action ID="WaitForDoorOpen" timeout_sec="300.0" />
+
+      <!-- 엘리베이터 내부로 진입 -->
+      <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_inside" __autoremap="true" />
+
+      <!-- 층 추정, (목표층 버튼 누르기 + 맵 변경) 병렬 실행 -->
+      <Parallel success_threshold="2" failure_threshold="1">
+        <Action ID="FloorEstimation" start_floor="0" target_floor="{target_floor}" />
+        <Sequence>
+            <Action ID="PressButton" button="{target_floor}" />
+            <Action ID="ChangeMap" floor="{target_floor}" initial_pose="{goal}" server_timeout="3000" />
+        </Sequence>
+      </Parallel>
+
+      <!-- 문 열림 대기 -->
+      <Action ID="WaitForDoorOpen" timeout_sec="120.0" />
+
+      <!-- 엘리베이터 하차 -->
+      <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_exit" __autoremap="true" />
+
+      <!-- 목표 호실로 이동 -->
+      <SubTreePlus ID="NavigateToWaypoint" target_name="{target_room}" __autoremap="true" />
+
+      <!-- 배달 완료 확인 대기, 실패 시에도 basecamp로 되돌아가도록 -->
+      <Action ID="PhaseManager" phase="confirm"/>
+      <Action ID="WaitForConfirmation" confirm_topic="/pickup/confirm" mission_uuid="{mission_uuid}" />
+
+      <!-- 엘리베이터 상하행 버튼 앞으로 이동 -->
+      <Action ID="PhaseManager" phase="return"/>
+      <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_updown_button" __autoremap="true" />
+
+      <!-- 하강 버튼 누르기 -->
+      <Action ID="PressButton" button="down" />
+
+      <!-- 엘리베이터 입구 앞으로 이동 -->
+      <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_entrance" __autoremap="true" />
+
+      <!-- accel z offset 보정 - 실패해도 기존 baseline 유지하며 진행 -->
+      <ForceSuccess>
+        <Action ID="AzOffsetCalibrator" server_timeout="5000" />
+      </ForceSuccess>
+
+      <!-- 엘리베이터 문 열림 대기 -->
+      <Action ID="WaitForDoorOpen" timeout_sec="300.0" />
+
+      <!-- 엘리베이터 내부로 진입 -->
+      <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_inside" __autoremap="true" />
+
+      <!-- 층 추정, (로비층 버튼 누르기 + 맵 변경) 병렬 실행 -->
+      <Parallel success_threshold="2" failure_threshold="1">
+        <Action ID="FloorEstimation" start_floor="{target_floor}" target_floor="0" />
+        <Sequence>
+            <Action ID="PressButton" button="0" />
+            <Action ID="ChangeMap" floor="0" initial_pose="{goal}" server_timeout="3000" />
+        </Sequence>
+      </Parallel>
+
+      <!-- 문 열림 대기 -->
+      <Action ID="WaitForDoorOpen" timeout_sec="120.0" />
+
+      <!-- 엘리베이터 하차 -->
+      <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_exit" __autoremap="true" />
+
+      <!-- basecamp로 복귀 -->
+      <SubTreePlus ID="NavigateToWaypoint" target_name="basecamp" __autoremap="true" />
+    </SequenceStar>
+  </BehaviorTree>
+</root>
