@@ -1,7 +1,9 @@
 // wait_for_confirmation_node.cpp
 
 #include "bero_ui_nav/bt_nodes/wait_for_confirmation_node.hpp"
+
 #include <algorithm>
+#include <functional>
 
 namespace bero_ui_nav
 {
@@ -34,14 +36,14 @@ BT::NodeStatus WaitForConfirmationNode::onStart()
   // confirm topic 로드
   auto confirm_topic = getInput<std::string>("confirm_topic");
   if (!confirm_topic) {
-    RCLCPP_ERROR(node_->get_logger(), "[WaitForConfirmationNode] missing confirm_topic input");
+    RCLCPP_ERROR(node_->get_logger(), "[WaitForConfirmationNode] Missing confirm_topic input");
     return BT::NodeStatus::FAILURE;
   }
 
   // mission UUID 로드
   auto mission_uuid = getInput<unique_identifier_msgs::msg::UUID>("mission_uuid");
   if (!mission_uuid) {
-    RCLCPP_ERROR(node_->get_logger(), "[WaitForConfirmationNode] missing mission_uuid input");
+    RCLCPP_ERROR(node_->get_logger(), "[WaitForConfirmationNode] Missing mission_uuid input");
     return BT::NodeStatus::FAILURE;
   }
   expected_mission_id_ = mission_uuid->uuid;
@@ -66,7 +68,7 @@ BT::NodeStatus WaitForConfirmationNode::onStart()
   start_time_ = std::chrono::steady_clock::now();
 
   RCLCPP_INFO(
-    node_->get_logger(), "[WaitForConfirmationNode] waiting on topic [%s] for mission UUID for [%.1f] seconds",  // NOLINT
+    node_->get_logger(), "[WaitForConfirmationNode] Waiting on topic [%s] for mission UUID for [%.1f] seconds",  // NOLINT
     confirm_topic->c_str(),
     timeout_sec_);
 
@@ -78,7 +80,7 @@ BT::NodeStatus WaitForConfirmationNode::onRunning()
   confirm_executor_->spin_some();
 
   if (confirmation_received_) {
-    RCLCPP_INFO(node_->get_logger(), "[WaitForConfirmationNode] confirmation received");
+    RCLCPP_INFO(node_->get_logger(), "[WaitForConfirmationNode] Confirmation received");
     return BT::NodeStatus::SUCCESS;
   }
 
@@ -99,7 +101,7 @@ BT::NodeStatus WaitForConfirmationNode::onRunning()
 
 void WaitForConfirmationNode::onHalted()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "[WaitForConfirmationNode] halted");
+  RCLCPP_DEBUG(node_->get_logger(), "[WaitForConfirmationNode] Halted");
   confirmation_received_ = false;
   expected_mission_id_ = {};
   start_time_ = std::chrono::steady_clock::now();
