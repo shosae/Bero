@@ -8,7 +8,10 @@ namespace bero_ui_nav
 GetMissionDataNode::GetMissionDataNode(
   const std::string & xml_tag_name,
   const BT::NodeConfiguration & conf)
-: nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>(xml_tag_name, conf, "/get_mission_data")
+: nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>(
+    xml_tag_name,
+    conf,
+    "/get_mission_data")
 {
 }
 
