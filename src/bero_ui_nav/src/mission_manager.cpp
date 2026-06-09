@@ -2,6 +2,9 @@
 
 #include "bero_ui_nav/mission_manager.hpp"
 
+#include <chrono>
+#include <exception>
+#include <functional>
 #include <unordered_map>
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
@@ -98,9 +101,12 @@ rclcpp_action::GoalResponse MissionManager::handle_goal(
 }
 
 rclcpp_action::CancelResponse MissionManager::handle_cancel(
-  const std::shared_ptr<GoalHandleDeliverToRoom>/*deliver_goal_handle*/)
+  const std::shared_ptr<GoalHandleDeliverToRoom> deliver_goal_handle)
 {
   RCLCPP_INFO(get_logger(), "Received request to cancel delivery mission");
+  if (deliver_goal_handle && deliver_goal_handle->is_canceling()) {
+    RCLCPP_INFO(get_logger(), "Cancel requested for deliver_to_room");
+  }
   cancel_current_nav2_goal();
 
   return rclcpp_action::CancelResponse::ACCEPT;
@@ -148,6 +154,16 @@ void MissionManager::execute_custom_navigation_async(
   const std::shared_ptr<GoalHandleDeliverToRoom> & deliver_goal_handle,
   const std::string & bt_xml_path)
 {
+  // deliver_to_room action 수신 직후 Cancel
+  if (deliver_goal_handle->is_canceling()) {
+    RCLCPP_WARN(get_logger(), "Mission canceled before sending navigation goal");
+    auto result = make_result(false, "배달이 취소되었습니다.");
+    deliver_goal_handle->canceled(result);
+    set_mission_state(false);
+    clear_current_deliver_goal_handle();
+    return;
+  }
+
   // nav2 서버 확인
   if (!nav2_client_->wait_for_action_server(std::chrono::seconds(3))) {
     RCLCPP_ERROR(get_logger(), "Navigation server unavailable");
@@ -163,6 +179,16 @@ void MissionManager::execute_custom_navigation_async(
   nav2_goal.pose = geometry_msgs::msg::PoseStamped();
   nav2_goal.behavior_tree = bt_xml_path;
 
+  // nav2 goal 보내기 전 cancel
+  if (deliver_goal_handle->is_canceling()) {
+    RCLCPP_WARN(get_logger(), "Mission cancelled before sending to Nav2");
+    auto result = make_result(false, "배달이 시작 전 취소되었습니다.");
+    deliver_goal_handle->canceled(result);
+    set_mission_state(false);
+    clear_current_deliver_goal_handle();
+    return;
+  }
+
   // nav2 goal options 설정
   auto nav2_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
 
@@ -170,6 +196,15 @@ void MissionManager::execute_custom_navigation_async(
   nav2_goal_options.goal_response_callback =
     [this, deliver_goal_handle](const GoalHandleNavigateToPose::SharedPtr & nav2_goal_handle) {
       if (!nav2_goal_handle) {
+        if (deliver_goal_handle->is_canceling()) {
+          RCLCPP_WARN(get_logger(), "Navigation goal rejected after cancel request");
+          auto result = make_result(false, "배달이 취소되었습니다.");
+          deliver_goal_handle->canceled(result);
+          set_mission_state(false);
+          clear_current_deliver_goal_handle();
+          return;
+        }
+
         RCLCPP_ERROR(get_logger(), "Navigation goal was rejected");
         auto result = make_result(false, "배달 요청이 거절되었습니다. 다시 시도해주세요.");
         deliver_goal_handle->abort(result);
@@ -180,6 +215,12 @@ void MissionManager::execute_custom_navigation_async(
         {
           std::lock_guard<std::mutex> lock(nav2_goal_mutex_);
           current_nav2_goal_handle_ = nav2_goal_handle;
+        }
+
+        if (deliver_goal_handle->is_canceling()) {
+          RCLCPP_WARN(
+            get_logger(), "Cancel was requested before Nav2 goal response; canceling Nav2 now");
+          nav2_client_->async_cancel_goal(nav2_goal_handle);
         }
       }
     };
@@ -208,8 +249,13 @@ void MissionManager::execute_custom_navigation_async(
 
         case rclcpp_action::ResultCode::CANCELED:
           RCLCPP_WARN(get_logger(), "Navigation CANCELED");
-          result = make_result(false, "배달이 취소되었습니다.");
-          deliver_goal_handle->abort(result);
+          if (deliver_goal_handle->is_canceling()) {
+            result = make_result(false, "배달이 취소되었습니다.");
+            deliver_goal_handle->canceled(result);
+          } else {
+            result = make_result(false, "내비게이션이 외부에서 취소되어 배달이 중단되었습니다.");
+            deliver_goal_handle->abort(result);
+          }
           break;
 
         default:
@@ -301,7 +347,7 @@ void MissionManager::publish_phase_feedback(
   }
 }
 
-// ========== Helper Functions ==========
+// ========== Helper methods ==========
 
 bool MissionManager::waypoint_exists(const std::string & room_number) const
 {

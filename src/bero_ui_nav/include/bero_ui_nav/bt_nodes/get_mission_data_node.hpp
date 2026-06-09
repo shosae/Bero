@@ -13,19 +13,18 @@
 namespace bero_ui_nav
 {
 
-class GetMissionDataNode
-  : public nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>
+class GetMissionDataNode : public nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>
 {
 public:
-  GetMissionDataNode(const std::string & service_name, const BT::NodeConfiguration & conf);
+  GetMissionDataNode(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   static BT::PortsList providedPorts()
   {
-    return {
-      BT::InputPort<std::string>("service_name", "Service name to connect to"),
-      BT::OutputPort<std::string>("target_room", "Target room number"),
-      BT::OutputPort<unique_identifier_msgs::msg::UUID>("mission_uuid", "Mission UUID")
-    };
+    return providedBasicPorts(
+      {
+        BT::OutputPort<std::string>("target_room", "Target room number"),
+        BT::OutputPort<unique_identifier_msgs::msg::UUID>("mission_uuid", "Mission UUID")
+      });
   }
 
   void on_tick() override;

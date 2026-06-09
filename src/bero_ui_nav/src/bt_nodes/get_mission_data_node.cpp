@@ -6,9 +6,12 @@ namespace bero_ui_nav
 {
 
 GetMissionDataNode::GetMissionDataNode(
-  const std::string & service_name,
+  const std::string & xml_tag_name,
   const BT::NodeConfiguration & conf)
-: nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>(service_name, conf)
+: nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>(
+    xml_tag_name,
+    conf,
+    "/get_mission_data")
 {
 }
 
@@ -32,12 +35,20 @@ void GetMissionDataNode::halt()
 BT::NodeStatus GetMissionDataNode::on_completion(
   std::shared_ptr<bero_msgs::srv::GetMissionData::Response> response)
 {
-  if (response->success) {
-    setOutput("target_room", response->target_room_number);
-    setOutput("mission_uuid", response->mission_uuid);
-    return BT::NodeStatus::SUCCESS;
+  if (!response->success) {
+    RCLCPP_ERROR(node_->get_logger(), "[GetMissionDataNode] Service returned failure");
+    return BT::NodeStatus::FAILURE;
   }
-  return BT::NodeStatus::FAILURE;
+
+  setOutput("target_room", response->target_room_number);
+  setOutput("mission_uuid", response->mission_uuid);
+
+  RCLCPP_INFO(
+    node_->get_logger(),
+    "[GetMissionDataNode] Retrieved mission data - Room: %s",
+    response->target_room_number.c_str());
+
+  return BT::NodeStatus::SUCCESS;
 }
 
 }  // namespace bero_ui_nav

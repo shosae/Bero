@@ -98,7 +98,7 @@ private:
   std::string describe_phase(const std::string & phase) const;
   void publish_phase_feedback(const std::string & phase, const std::string & status);
 
-  // ========== Helper Functions ==========
+  // ========== Helper methods ==========
   bool waypoint_exists(const std::string & room_number) const;
 
   std::shared_ptr<DeliverToRoom::Result> make_result(

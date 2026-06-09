@@ -53,7 +53,7 @@ BT::NodeStatus GetWaypointNode::tick()
   return BT::NodeStatus::SUCCESS;
 }
 
-// ========== Helper Functions ==========
+// ========== Helper methods ==========
 
 geometry_msgs::msg::PoseStamped GetWaypointNode::get_waypoint_from_params(
   const std::string & waypoint_name)

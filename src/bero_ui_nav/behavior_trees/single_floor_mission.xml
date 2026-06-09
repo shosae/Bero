@@ -7,7 +7,7 @@
     <SequenceStar name="MissionLifecycle"> 
 
       <!-- Stage 1: Get Mission & Go to Room -->
-      <Action ID="GetMissionData" service_name="/get_mission_data" target_room="{target_room_number}" mission_uuid="{mission_uuid}" />
+      <Action ID="GetMissionData" target_room="{target_room_number}" mission_uuid="{mission_uuid}" />
       <Action ID="GetWaypoint" waypoint_name="{target_room_number}" waypoint_pose="{goal}" />
       <Action ID="PhaseManager" phase="moving_to_room"/>
       <!-- Navigate to Room -->
