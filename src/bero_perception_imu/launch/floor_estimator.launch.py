@@ -15,11 +15,7 @@ def generate_launch_description():
     pkg_bero_perception_imu = get_package_share_directory('bero_perception_imu')
 
     # Path to files
-    estimator_config_path = os.path.join(
-        pkg_bero_perception_imu,
-        'config',
-        'floor_estimator_params.yaml',
-    )
+    estimator_config_path = os.path.join(pkg_bero_perception_imu, 'config', 'floor_estimator_params.yaml')  # noqa: E501
 
     # Arguments
     config_file = LaunchConfiguration('config_file')
