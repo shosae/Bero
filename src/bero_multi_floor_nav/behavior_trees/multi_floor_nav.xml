@@ -72,7 +72,7 @@
         <Action ID="AzOffsetCalibrator" server_timeout="5000" />
       </ForceSuccess>
 
-      <!-- 문 열림 대기 -->
+      <!-- 엘리베이터 문 열림 대기 -->
       <Action ID="WaitForDoorOpen" timeout_sec="300.0" />
 
       <!-- 엘리베이터 내부로 진입 -->
@@ -110,18 +110,18 @@
       <!-- 엘리베이터 입구 앞으로 이동 -->
       <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_entrance" __autoremap="true" />
 
-      <!-- accel z offset 보정 -->
+      <!-- accel z offset 보정 - 실패해도 기존 baseline 유지하며 진행 -->
       <ForceSuccess>
         <Action ID="AzOffsetCalibrator" server_timeout="5000" />
       </ForceSuccess>
 
-      <!-- 엘리베이터 문 열림 확인 -->
-      <Action ID="WaitForDoorOpen" timeout_sec="60.0" />
+      <!-- 엘리베이터 문 열림 대기 -->
+      <Action ID="WaitForDoorOpen" timeout_sec="300.0" />
 
       <!-- 엘리베이터 내부로 진입 -->
       <SubTreePlus ID="NavigateToWaypoint" target_name="elevator_inside" __autoremap="true" />
 
-      <!-- 층 추정, (버튼 누르기 + 맵 변경) 병렬 실행 -->
+      <!-- 층 추정, (로비층 버튼 누르기 + 맵 변경) 병렬 실행 -->
       <Parallel success_threshold="2" failure_threshold="1">
         <Action ID="FloorEstimation" start_floor="{target_floor}" target_floor="0" />
         <Sequence>
