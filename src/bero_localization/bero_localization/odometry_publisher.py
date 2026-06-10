@@ -1,7 +1,6 @@
 import math
 import rclpy
 from rclpy.node import Node
-from rclpy.clock import Clock, ClockType
 from geometry_msgs.msg import TransformStamped, Quaternion
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
@@ -18,9 +17,8 @@ class OdometryPublisherNode(Node):
     Wheel Odometry Publisher.
 
     /joint_states 토픽을 구독하여
-    omni wheel 3개의 각속도로부터 odometry를 계산하고
-    /wheel/odom 토픽으로 발행
-    publish_tf 파라미터가 True일 경우 odom->base_link TF도 발행
+    omni wheel 3개의 joint position과 velocity로부터 odometry를 계산하고
+    publish_tf 파라미터가 True일 경우 odom->base_link TF 발행
     """
 
     def __init__(self):
@@ -66,10 +64,7 @@ class OdometryPublisherNode(Node):
         self.x = 0.0
         self.y = 0.0
         self.yaw = 0.0
-
-        # dt 계산용 Steady Clock과 이전 콜백 시각
-        self.steady_clock = Clock(clock_type=ClockType.STEADY_TIME)
-        self.last_callback_time = None
+        self.last_joint_positions = None  # 이전 joint position 저장용
 
         # ---------------- Sub/Pub Initialization ----------------
         self.joint_sub = self.create_subscription(JointState, "/joint_states", self.joint_state_cb, 10)  # noqa
@@ -85,39 +80,37 @@ class OdometryPublisherNode(Node):
 
     def joint_state_cb(self, msg: JointState):
         """/joint_states 메시지를 수신하여 오도메트리를 계산하고 발행."""
-        # 각 바퀴의 선형 속도 (v = ω * r)
-        velocities = [msg.velocity[msg.name.index(name)] for name in self.joint_names]
-        v1, v2, v3 = [vel * self.r for vel in velocities]
+        # 각 wheel joint의 인덱스 저장
+        indices = [msg.name.index(name) for name in self.joint_names]
 
-        # dt 계산용 Steady Clock과 메시지 발행용 joint_state stamp 시각
-        now_steady = self.steady_clock.now()
-        time_stamp = msg.header.stamp  # /joint_states 발행 시점으로
+        # 각 wheel의 선형 속도 계산 (v = ω * r)
+        v1, v2, v3 = [msg.velocity[idx] * self.r for idx in indices]
 
-        # 첫 콜백 초기화
-        if self.last_callback_time is None:
-            self.last_callback_time = now_steady
-            return
-
-        # 이전 콜백과의 시간 간격(s) 계산
-        dt_duration = now_steady - self.last_callback_time
-        dt_sec = dt_duration.nanoseconds / 1e9
-
-        # 비정상적으로 짧은 주기 방지
-        if dt_sec <= 1e-6:
-            return
-
-        # 현재 시각 저장 (다음 loop에서 참조)
-        self.last_callback_time = now_steady
-
-        # 정기구학 기반 body 기준 속도 계산(120° 배치 기준)
+        # 정기구학 기반 base_link 기준 속도 계산
         vx = (-self.sin[0] * v1 - self.sin[1] * v2 - self.sin[2] * v3) / 1.5
         vy = (self.cos[0] * v1 + self.cos[1] * v2 + self.cos[2] * v3) / 1.5
         wz = (v1 + v2 + v3) / (3.0 * self.R)
 
-        # dt_sec 동안 base_link 기준 이동 거리 및 회전량
-        dx_b = vx * dt_sec
-        dy_b = vy * dt_sec
-        dyaw = wz * dt_sec
+        # 현재 wheel joint 누적 각도 가져오기 (rad)
+        positions = [msg.position[idx] for idx in indices]
+        
+        # 첫 콜백 초기화
+        if self.last_joint_positions is None:
+            self.last_joint_positions = positions
+            return
+            
+        # 각 wheel의 이동 거리 계산 (d = Δθ * r)
+        d1, d2, d3 = [(curr - prev) * self.r for curr, prev in zip(positions, self.last_joint_positions)]
+
+        # 정기구학 기반 base_link 기준 이동 거리 및 회전량 계산
+        dx_b = (-self.sin[0] * d1 - self.sin[1] * d2 - self.sin[2] * d3) / 1.5
+        dy_b = (self.cos[0] * d1 + self.cos[1] * d2 + self.cos[2] * d3) / 1.5
+        dyaw = (d1 + d2 + d3) / (3.0 * self.R)
+
+        time_stamp = msg.header.stamp
+
+        # 다음 계산을 위해 현재 wheel joint position 저장
+        self.last_joint_positions = positions
 
         # odom 좌표계 기준으로 변환 후 누적
         cos_y = math.cos(self.yaw)
@@ -130,7 +123,7 @@ class OdometryPublisherNode(Node):
         # 디버그 로그 출력
         self.get_logger().debug(
             "\n"
-            f"vx: {vx:.4f}, vy: {vy:.4f}, wz: {wz:.4f}, dt: {dt_sec:.4f}\n"
+            f"vx: {vx:.4f}, vy: {vy:.4f}, wz: {wz:.4f}\n"
             f"dx_b: {dx_b:.4f}, dy_b: {dy_b:.4f}, dyaw: {dyaw:.4f}\n"
             f"x: {self.x:.4f}, y: {self.y:.4f}, yaw: {self.yaw:.4f}"
         )
