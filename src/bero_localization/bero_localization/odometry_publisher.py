@@ -34,7 +34,7 @@ class OdometryPublisherNode(Node):
 
         # 로봇 기구학 파라미터
         self.declare_parameter("wheel_radius_m", 0.041)
-        self.declare_parameter("wheel_to_center_m", 0.1465)
+        self.declare_parameter("wheel_to_center_m", 0.135)
         self.declare_parameter("wheel_angles_deg", [60.0, 300.0, 180.0])
         self.declare_parameter("joint_names", ["wheel_joint_left", "wheel_joint_right", "wheel_joint_back"])  # noqa
 
