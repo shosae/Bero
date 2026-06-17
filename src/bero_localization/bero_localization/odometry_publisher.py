@@ -93,14 +93,17 @@ class OdometryPublisherNode(Node):
 
         # 현재 wheel joint 누적 각도 가져오기 (rad)
         positions = [msg.position[idx] for idx in indices]
-        
+
         # 첫 콜백 초기화
         if self.last_joint_positions is None:
             self.last_joint_positions = positions
             return
-            
+
         # 각 wheel의 이동 거리 계산 (d = Δθ * r)
-        d1, d2, d3 = [(curr - prev) * self.r for curr, prev in zip(positions, self.last_joint_positions)]
+        d1, d2, d3 = [
+            (curr - prev) * self.r
+            for curr, prev in zip(positions, self.last_joint_positions)
+        ]
 
         # 정기구학 기반 base_link 기준 이동 거리 및 회전량 계산
         dx_b = (-self.sin[0] * d1 - self.sin[1] * d2 - self.sin[2] * d3) / 1.5
