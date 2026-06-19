@@ -14,14 +14,14 @@ def generate_launch_description():
     pkg_imu = get_package_share_directory('imu')
     pkg_bero_localization = get_package_share_directory('bero_localization')
     pkg_bero_description = get_package_share_directory('bero_description')
-    pkg_rplidar_ros = get_package_share_directory('rplidar_ros')
+    pkg_bero_bringup = get_package_share_directory('bero_bringup')
 
     # Path to files
     imu_config_path = os.path.join(pkg_imu, 'config', 'imu_cov.yaml')
     wheel_odom_config_path = os.path.join(pkg_bero_localization, 'config', 'wheel_odom_cov.yaml')
     ekf_launch_path = os.path.join(pkg_bero_localization, 'launch', 'ekf_odom.launch.py')
     bero_description_launch_path = os.path.join(pkg_bero_description, 'launch', 'bero_description.launch.py')  # noqa: E501
-    rplidar_launch_path = os.path.join(pkg_rplidar_ros, 'launch', 'rplidar_s3_launch.py')
+    rplidar_launch_path = os.path.join(pkg_bero_bringup, 'launch', 'rplidar_s3.launch.py')
 
     # Included launches
     ekf_launch = IncludeLaunchDescription(
@@ -34,10 +34,6 @@ def generate_launch_description():
 
     rplidar_s3_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(rplidar_launch_path),
-        launch_arguments={
-            'scan_mode': 'DenseBoost',
-            'scan_frequency': '20.0',
-        }.items(),
     )
 
     # Nodes
