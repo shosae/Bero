@@ -9,10 +9,7 @@ class ImuPublisherNode(Node):
     """
     Imu publisher.
 
-    약 143Hz로 발행되는 Imu 센서에서
-    (accel, mag, gyro, euler, quat) 5종류의 데이터를 읽어
-    /imu/data 토픽으로 발행
-    mag, euler는 log 출력에만 사용
+    Imu 센서에서 accel, gyro, quat 데이터를 읽어 /imu/data 토픽으로 발행
     """
 
     def __init__(self):
@@ -20,8 +17,8 @@ class ImuPublisherNode(Node):
 
         # ---------------- Declare Parameter ----------------
         # EKF에서 사용되지 않는 항목이 무시되도록 1e3으로 크게 설정
-        self.declare_parameter("rpy_cov_diag", [1e3, 1e3, 0.001])  # yaw만 사용
-        self.declare_parameter("gyro_cov_diag", [1e3, 1e3, 0.001])  # gz만 사용
+        self.declare_parameter("rpy_cov_diag", [1e3, 1e3, 1e3])
+        self.declare_parameter("gyro_cov_diag", [1e3, 1e3, 1e-4])
         self.declare_parameter("accel_cov_diag", [1e3, 1e3, 1e3])
 
         # ---------------- Get Parameter ----------------

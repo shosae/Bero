@@ -39,8 +39,8 @@ class OdometryPublisherNode(Node):
         self.declare_parameter("joint_names", ["wheel_joint_left", "wheel_joint_right", "wheel_joint_back"])  # noqa
 
         # pose, twist Covariance
-        self.declare_parameter("pose_cov_diag", [1e-1, 1e-1, 1e6, 1e6, 1e6, 2e-3])
-        self.declare_parameter("twist_cov_diag", [1e-2, 1e-2, 1e6, 1e6, 1e6, 1e-3])
+        self.declare_parameter("pose_cov_diag", [1e3, 1e3, 1e3, 1e3, 1e3, 1e3])
+        self.declare_parameter("twist_cov_diag", [5e-3, 7e-3, 1e3, 1e3, 1e3, 1e3])
 
         # ---------------- Get Parameter ----------------
         self.odom_frame = self.get_parameter("odom_frame").value

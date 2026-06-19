@@ -1,0 +1,14 @@
+imu_publisher:
+  ros__parameters:
+    rpy_cov_diag:
+    - 1e3
+    - 1e3
+    - 1e3
+    gyro_cov_diag:
+    - 1e3
+    - 1e3
+    - 1e-4
+    accel_cov_diag:
+    - 1e3
+    - 1e3
+    - 1e3

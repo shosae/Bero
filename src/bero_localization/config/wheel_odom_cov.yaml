@@ -1,0 +1,16 @@
+odometry_publisher:
+  ros__parameters:
+    pose_cov_diag:
+    - 1e3
+    - 1e3
+    - 1e3
+    - 1e3
+    - 1e3
+    - 1e3
+    twist_cov_diag:
+    - 5e-3
+    - 7e-3
+    - 1e3
+    - 1e3
+    - 1e3
+    - 1e3
