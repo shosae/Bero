@@ -51,8 +51,10 @@ class JointStatePublisherNode(Node):
         self.last_ticks = (0, 0, 0)  # (L, R, B)
         self.wheel_positions = [0.0, 0.0, 0.0]  # 누적 각도 (rad)
 
-        # ---------------- Encoder & Publisher Initialization ----------------
+        # ---------------- ROS Communication ----------------
         self.joint_state_pub = self.create_publisher(JointState, "/joint_states", 10)
+
+        # ---------------- Device Initialization ----------------
         self.encoder = Encoder("can0", 500000)
         self.encoder.callback(self.encoder_cb, repeat=1)
 
@@ -61,7 +63,7 @@ class JointStatePublisherNode(Node):
     # encoder callback
     def encoder_cb(self, data: tuple[int, int, int, int]) -> None:
         """엔코더 센서로부터 메시지를 수신할 때마다 /joint_states를 계산하고 발행."""
-        staus, e1, e2, e3 = data
+        _, e1, e2, e3 = data
         now_steady = self.steady_clock.now()
         time_stamp = self.get_clock().now().to_msg()
 
@@ -100,9 +102,9 @@ class JointStatePublisherNode(Node):
         for i in range(3):
             self.wheel_positions[i] += delta_angles[i]
 
-        # 디버그 로그 출력
-        self.get_logger().debug(f"velocities: {velocities}")
-        self.get_logger().debug(f"wheel_positions: {self.wheel_positions}")
+        # # 디버그 로그 출력
+        # self.get_logger().debug(f"velocities: {velocities}")
+        # self.get_logger().debug(f"wheel_positions: {self.wheel_positions}")
 
         # 계산된 joint 정보 발행
         self.publish_joint(velocities, time_stamp)
@@ -118,10 +120,12 @@ class JointStatePublisherNode(Node):
     # Encoder thread 확실하게 종료
     def destroy_node(self):
         try:
+            self.get_logger().info("Stopping Encoder Publisher")
             self.encoder.stop()
         except Exception as e:
             self.get_logger().error(f"Failed to stop the encoder during shutdown: {e}")
-        super().destroy_node()
+        finally:
+            super().destroy_node()
 
 
 def main(args=None):

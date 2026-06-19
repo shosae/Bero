@@ -4,9 +4,16 @@
   <name>imu</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="phone13324@gmail.com">soda</maintainer>
+  <maintainer email="phone13324@gmail.com">shosae</maintainer>
   <license>TODO: License declaration</license>
 
+  <!-- ROS2 dependencies -->
+  <depend>rclpy</depend>
+
+  <!-- Message dependencies -->
+  <depend>sensor_msgs</depend>
+
+  <!-- Test dependencies -->
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
