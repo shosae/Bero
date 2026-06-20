@@ -94,14 +94,14 @@ class OmniDriveController(Node):
             w1 *= scale
             w2 *= scale
             w3 *= scale
-            self.get_logger().info(
-                f"Wheel angular velocities scaled by {scale:.2f} to fit hardware limits."
-            )
+            # self.get_logger().info(
+            #     f"Wheel angular velocities scaled by {scale:.2f} to fit hardware limits."
+            # )
 
         # 각 바퀴의 목표 속도 logging
-        self.get_logger().info(
-            f"Wheel Angular Velocities: w1={w1:.2f}, w2={w2:.2f}, w3={w3:.2f}"
-        )
+        # self.get_logger().info(
+        #     f"Wheel Angular Velocities: w1={w1:.2f}, w2={w2:.2f}, w3={w3:.2f}"
+        # )
 
         # 목표 속도 - 하드웨어 명령 매핑
         cmd1 = self.vel_to_cmd(w1)
@@ -113,9 +113,9 @@ class OmniDriveController(Node):
         self.driver.wheel_vec[2] = DrivingBase.WHEEL_CENTER + cmd3
 
         # cmd_vel -> HW 바퀴 명령값 logging
-        self.get_logger().info(
-            f"CmdVel: [vx:{vx:.2f}, vy:{vy:.2f}, wz:{wz:.2f}] -> Wheels: {self.driver.wheel_vec}"
-        )
+        # self.get_logger().info(
+        #     f"CmdVel: [vx:{vx:.2f}, vy:{vy:.2f}, wz:{wz:.2f}] -> Wheels: {self.driver.wheel_vec}"
+        # )
 
         # 하드웨어에 명령 전송
         self.driver.transfer()
