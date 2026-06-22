@@ -22,9 +22,13 @@ class OmniDriveController(Node):
         super().__init__("omni_drive_controller")
 
         # ---------------- Configuration ----------------
-        self.r = 0.041  # 바퀴 반지름 (m)
-        self.R = 0.1465  # 로봇 중심에서 바퀴까지의 거리 (m)
-        self.angles_deg = [60.0, 300.0, 180.0]  # 각 바퀴의 각도 (deg)
+        self.declare_parameter("wheel_radius_m", 0.041)
+        self.declare_parameter("wheel_to_center_m", 0.135)
+        self.declare_parameter("wheel_angles_deg", [60.0, 300.0, 180.0])
+
+        self.r = self.get_parameter("wheel_radius_m").value
+        self.R = self.get_parameter("wheel_to_center_m").value
+        self.angles_deg = self.get_parameter("wheel_angles_deg").value
         self.vel_mapping()  # 명령-속도 매핑 테이블
 
         # 각도(rad) 및 sin/cos 값 미리 계산
