@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <atomic>
 #include <chrono>
 #include <string>
 
@@ -26,20 +25,20 @@ public:
     };
   }
 
+private:
   BT::NodeStatus onStart() override;
   BT::NodeStatus onRunning() override;
   void onHalted() override;
 
-private:
-  void elevator_status_callback(const std_msgs::msg::String::SharedPtr msg);
-
   rclcpp::Node::SharedPtr node_;
   rclcpp::CallbackGroup::SharedPtr callback_group_;
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr elevator_status_sub_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr monitor_enable_pub_;
-  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 
-  std::atomic<bool> door_opened_{false};
+  void elevator_status_callback(const std_msgs::msg::String::SharedPtr msg);
+
+  bool door_opened_{false};
   std::chrono::steady_clock::time_point start_time_;
 };
 

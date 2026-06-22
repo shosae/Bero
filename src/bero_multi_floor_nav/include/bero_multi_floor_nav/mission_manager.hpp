@@ -28,7 +28,7 @@ public:
   using NavigateToPose = nav2_msgs::action::NavigateToPose;
   using GoalHandleNavigateToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
 
-  explicit MissionManager(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
+  MissionManager();
   ~MissionManager() override;
 
 private:
@@ -104,7 +104,7 @@ private:
   std::string describe_phase(const std::string & phase) const;
   void publish_phase_feedback(const std::string & phase, const std::string & status);
 
-  // ========== Helper Functions ==========
+  // ========== Helper Methods ==========
   std::shared_ptr<DeliverToRoom::Result> make_result(
     bool success,
     const std::string & message) const;

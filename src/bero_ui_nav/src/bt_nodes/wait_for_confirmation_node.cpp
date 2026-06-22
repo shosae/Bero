@@ -68,7 +68,7 @@ BT::NodeStatus WaitForConfirmationNode::onStart()
   start_time_ = std::chrono::steady_clock::now();
 
   RCLCPP_INFO(
-    node_->get_logger(), "[WaitForConfirmationNode] Waiting on topic [%s] for mission UUID for [%.1f] seconds",  // NOLINT
+    node_->get_logger(), "[WaitForConfirmationNode] Waiting on topic [%s]'s mission UUID for [%.1f] seconds",
     confirm_topic->c_str(),
     timeout_sec_);
 
@@ -80,7 +80,7 @@ BT::NodeStatus WaitForConfirmationNode::onRunning()
   confirm_executor_->spin_some();
 
   if (confirmation_received_) {
-    RCLCPP_INFO(node_->get_logger(), "[WaitForConfirmationNode] Confirmation received");
+    RCLCPP_INFO(node_->get_logger(), "[WaitForConfirmationNode] Confirmation received successfully");
     return BT::NodeStatus::SUCCESS;
   }
 
@@ -89,10 +89,7 @@ BT::NodeStatus WaitForConfirmationNode::onRunning()
     std::chrono::steady_clock::now() - start_time_).count();
 
   if (elapsed > timeout_sec_) {
-    RCLCPP_WARN(
-      node_->get_logger(),
-      "[WaitForConfirmationNode] timeout (%.1fsec), return to basecamp",
-      timeout_sec_);
+    RCLCPP_WARN(node_->get_logger(), "[WaitForConfirmationNode] Timeout (%.1f sec)", timeout_sec_);
     return BT::NodeStatus::SUCCESS;
   }
 

@@ -2,13 +2,12 @@
 
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/action_node.h"
-
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace bero_ui_nav
 {
@@ -28,12 +27,11 @@ public:
     };
   }
 
+private:
   BT::NodeStatus tick() override;
 
-private:
   rclcpp::Node::SharedPtr node_;
-
-  std::shared_ptr<rclcpp::SyncParametersClient> param_client_;
+  rclcpp::SyncParametersClient::SharedPtr param_client_;
 
   geometry_msgs::msg::PoseStamped get_waypoint_from_params(const std::string & waypoint_name);
 };

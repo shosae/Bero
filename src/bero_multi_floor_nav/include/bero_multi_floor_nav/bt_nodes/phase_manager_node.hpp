@@ -21,11 +21,10 @@ public:
     return {BT::InputPort<std::string>("phase", "Phase to change ui")};
   }
 
+private:
   BT::NodeStatus tick() override;
 
-private:
   rclcpp::Node::SharedPtr node_;
-
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr bt_phase_pub_;
 };
 

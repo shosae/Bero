@@ -4,9 +4,8 @@
 
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/action_node.h"
-
+#include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
 namespace bero_ui_nav
@@ -22,11 +21,10 @@ public:
     return {BT::InputPort<std::string>("phase", "Phase to change ui")};
   }
 
+private:
   BT::NodeStatus tick() override;
 
-private:
   rclcpp::Node::SharedPtr node_;
-
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr bt_phase_pub_;
 };
 

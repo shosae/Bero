@@ -44,6 +44,8 @@ WaitForDoorOpenNode::WaitForDoorOpenNode(
   );
 }
 
+// ========== Lifecycle ==========
+
 BT::NodeStatus WaitForDoorOpenNode::onStart()
 {
   start_time_ = std::chrono::steady_clock::now();
@@ -104,6 +106,8 @@ void WaitForDoorOpenNode::onHalted()
   msg.data = false;
   monitor_enable_pub_->publish(msg);
 }
+
+// ========== Callbacks ==========
 
 void WaitForDoorOpenNode::elevator_status_callback(const std_msgs::msg::String::SharedPtr msg)
 {

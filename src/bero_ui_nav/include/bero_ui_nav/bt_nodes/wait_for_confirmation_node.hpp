@@ -9,9 +9,7 @@
 #include <string>
 
 #include "behaviortree_cpp_v3/action_node.h"
-#include "rclcpp/executors/single_threaded_executor.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "unique_identifier_msgs/msg/uuid.hpp"
 
 namespace bero_ui_nav
@@ -31,15 +29,14 @@ public:
     };
   }
 
+private:
   BT::NodeStatus onStart() override;
   BT::NodeStatus onRunning() override;
   void onHalted() override;
 
-private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::CallbackGroup::SharedPtr confirm_callback_group_;
-  std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> confirm_executor_;
-
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr confirm_executor_;
   rclcpp::Subscription<unique_identifier_msgs::msg::UUID>::SharedPtr subscription_;
 
   void confirmation_callback(const unique_identifier_msgs::msg::UUID::SharedPtr msg);

@@ -12,6 +12,8 @@ FloorEstimationNode::FloorEstimationNode(
 {
 }
 
+// ========== Tick ==========
+
 void FloorEstimationNode::on_tick()
 {
   int start_floor;
@@ -33,6 +35,8 @@ void FloorEstimationNode::on_tick()
     "[FloorEstimationNode] Sending goal: %d -> %d",
     start_floor, target_floor);
 }
+
+// ========== Completion ==========
 
 BT::NodeStatus FloorEstimationNode::on_success()
 {

@@ -15,10 +15,14 @@ AzOffsetCalibratorNode::AzOffsetCalibratorNode(
 {
 }
 
+// ========== Tick ==========
+
 void AzOffsetCalibratorNode::on_tick()
 {
   // 빈 요청
 }
+
+// ========== Completion ==========
 
 BT::NodeStatus AzOffsetCalibratorNode::on_completion(
   std::shared_ptr<std_srvs::srv::Trigger::Response> response)

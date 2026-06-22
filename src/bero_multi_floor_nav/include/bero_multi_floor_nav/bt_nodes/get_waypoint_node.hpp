@@ -25,16 +25,16 @@ public:
     };
   }
 
+private:
   BT::NodeStatus tick() override;
 
-private:
   rclcpp::Node::SharedPtr node_;
+
+  void load_waypoints();
+  std::string parse_waypoint_name(const std::string & waypoint_name);
 
   static std::map<std::string, geometry_msgs::msg::PoseStamped> waypoints_;
   static bool waypoints_loaded_;
-  void load_waypoints();
-
-  std::string parse_waypoint_name(const std::string & waypoint_name);
 };
 
 }  // namespace bero_multi_floor_nav

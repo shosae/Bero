@@ -31,13 +31,13 @@ public:
       });
   }
 
+private:
   void on_tick() override;
-
   BT::NodeStatus on_completion(std::shared_ptr<nav2_msgs::srv::LoadMap::Response> response) override;
 
-private:
-  std::map<int, std::string> map_paths_;
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr initialpose_pub_;
+
+  std::map<int, std::string> map_paths_;
 };
 
 }  // namespace bero_multi_floor_nav

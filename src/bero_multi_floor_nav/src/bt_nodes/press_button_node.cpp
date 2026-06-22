@@ -12,6 +12,8 @@ PressButtonNode::PressButtonNode(
 {
 }
 
+// ========== Tick ==========
+
 void PressButtonNode::on_tick()
 {
   std::string button;
@@ -27,6 +29,8 @@ void PressButtonNode::on_tick()
   RCLCPP_INFO(node_->get_logger(), "[PressButtonNode] Sending goal for button: %s", goal_.button.c_str());
 }
 
+// ========== Completion ==========
+
 BT::NodeStatus PressButtonNode::on_success()
 {
   if (result_.result->success) {
@@ -36,6 +40,18 @@ BT::NodeStatus PressButtonNode::on_success()
     RCLCPP_ERROR(node_->get_logger(), "[PressButtonNode] FAILURE - %s", result_.result->message.c_str());
     return BT::NodeStatus::FAILURE;
   }
+}
+
+BT::NodeStatus PressButtonNode::on_aborted()
+{
+  RCLCPP_ERROR(node_->get_logger(), "[PressButtonNode] Action ABORTED");
+  return BT::NodeStatus::FAILURE;
+}
+
+BT::NodeStatus PressButtonNode::on_cancelled()
+{
+  RCLCPP_WARN(node_->get_logger(), "[PressButtonNode] Action CANCELLED");
+  return BT::NodeStatus::FAILURE;
 }
 
 }  // namespace bero_multi_floor_nav
