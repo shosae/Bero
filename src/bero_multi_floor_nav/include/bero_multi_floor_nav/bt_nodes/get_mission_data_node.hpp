@@ -13,8 +13,7 @@
 namespace bero_multi_floor_nav
 {
 
-class GetMissionDataNode
-  : public nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>
+class GetMissionDataNode : public nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>
 {
 public:
   GetMissionDataNode(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
@@ -29,10 +28,10 @@ public:
       });
   }
 
+private:
   void on_tick() override;
   void halt() override;
-  BT::NodeStatus on_completion(
-    std::shared_ptr<bero_msgs::srv::GetMissionData::Response> response) override;
+  BT::NodeStatus on_completion(std::shared_ptr<bero_msgs::srv::GetMissionData::Response> response) override;
 };
 
 }  // namespace bero_multi_floor_nav

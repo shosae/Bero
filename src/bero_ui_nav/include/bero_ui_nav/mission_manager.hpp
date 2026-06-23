@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <mutex>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 
@@ -11,10 +11,9 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include "std_msgs/msg/string.hpp"
-#include "bero_msgs/srv/get_mission_data.hpp"
 #include "bero_msgs/action/deliver_to_room.hpp"
+#include "bero_msgs/srv/get_mission_data.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
-
 
 namespace bero_ui_nav
 {
@@ -98,7 +97,7 @@ private:
   std::string describe_phase(const std::string & phase) const;
   void publish_phase_feedback(const std::string & phase, const std::string & status);
 
-  // ========== Helper methods ==========
+  // ========== Helper Methods ==========
   bool waypoint_exists(const std::string & room_number) const;
 
   std::shared_ptr<DeliverToRoom::Result> make_result(

@@ -27,7 +27,7 @@ void GetMissionDataNode::on_tick()
 void GetMissionDataNode::halt()
 {
   nav2_behavior_tree::BtServiceNode<bero_msgs::srv::GetMissionData>::halt();
-  RCLCPP_DEBUG(node_->get_logger(), "[GetMissionDataNode] halted");
+  RCLCPP_DEBUG(node_->get_logger(), "[GetMissionDataNode] Halted");
 }
 
 // ========== Completion ==========

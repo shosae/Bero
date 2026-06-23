@@ -16,8 +16,8 @@ class AzOffsetCalibratorNode : public nav2_behavior_tree::BtServiceNode<std_srvs
 public:
   AzOffsetCalibratorNode(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
+private:
   void on_tick() override;
-
   BT::NodeStatus on_completion(std::shared_ptr<std_srvs::srv::Trigger::Response> response) override;
 };
 

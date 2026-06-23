@@ -14,8 +14,8 @@
 namespace bero_multi_floor_nav
 {
 
-MissionManager::MissionManager(const rclcpp::NodeOptions & options)
-: Node("mission_manager", options)
+MissionManager::MissionManager()
+: Node("mission_manager")
 {
   // ========== Worker Thread ==========
 

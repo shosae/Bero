@@ -1,6 +1,7 @@
 // get_waypoint_node.cpp
 
 #include "bero_ui_nav/bt_nodes/get_waypoint_node.hpp"
+
 #include <array>
 
 namespace bero_ui_nav

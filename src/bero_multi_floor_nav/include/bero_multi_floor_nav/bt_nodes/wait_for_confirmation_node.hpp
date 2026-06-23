@@ -3,14 +3,12 @@
 #pragma once
 
 #include <array>
-#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <memory>
 #include <string>
 
 #include "behaviortree_cpp_v3/action_node.h"
-#include "rclcpp/executors/single_threaded_executor.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "unique_identifier_msgs/msg/uuid.hpp"
 
@@ -31,20 +29,19 @@ public:
     };
   }
 
+private:
   BT::NodeStatus onStart() override;
   BT::NodeStatus onRunning() override;
   void onHalted() override;
 
-private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::CallbackGroup::SharedPtr confirm_callback_group_;
-  std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> confirm_executor_;
-
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr confirm_executor_;
   rclcpp::Subscription<unique_identifier_msgs::msg::UUID>::SharedPtr subscription_;
 
   void confirmation_callback(const unique_identifier_msgs::msg::UUID::SharedPtr msg);
 
-  std::atomic<bool> confirmation_received_{false};
+  bool confirmation_received_{false};
   std::array<uint8_t, 16> expected_mission_id_{};
   std::chrono::steady_clock::time_point start_time_;
   double timeout_sec_{300.0};

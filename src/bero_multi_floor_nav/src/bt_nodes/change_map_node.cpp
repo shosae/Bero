@@ -32,6 +32,8 @@ ChangeMapNode::ChangeMapNode(
     node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/initialpose", 10);
 }
 
+// ========== Tick ==========
+
 void ChangeMapNode::on_tick()
 {
   // InputPort로부터 층 정보 얻기
@@ -66,6 +68,8 @@ void ChangeMapNode::on_tick()
 
   request_->map_url = map_path;
 }
+
+// ========== Completion ==========
 
 BT::NodeStatus ChangeMapNode::on_completion(std::shared_ptr<nav2_msgs::srv::LoadMap::Response> response)
 {
