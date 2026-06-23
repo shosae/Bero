@@ -7,9 +7,21 @@
   <maintainer email="phone13324@gmail.com">shosae</maintainer>
   <license>TODO: License declaration</license>
 
-  <depend>rclpy</depend>
-  <depend>slam_toolbox</depend>
+  <!-- Bero dependencies -->
+  <exec_depend>bero_bringup</exec_depend>
 
+  <!-- Launch dependencies -->
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <!-- Mapping dependencies -->
+  <exec_depend>slam_toolbox</exec_depend>
+
+  <!-- UI dependencies -->
+  <exec_depend>rviz2</exec_depend>
+
+  <!-- Test dependencies -->
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
