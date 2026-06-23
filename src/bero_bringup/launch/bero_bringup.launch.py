@@ -67,6 +67,13 @@ def generate_launch_description():
         output='screen',
     )
 
+    omni_drive_controller_node = Node(
+        package='bero_teleop',
+        executable='omni_drive_ctrl',
+        name='omni_drive_controller',
+        output='screen',
+    )
+
     return LaunchDescription([
         ekf_launch,
         robot_state_publisher_launch,
@@ -75,4 +82,5 @@ def generate_launch_description():
         joint_state_publisher_node,
         odometry_publisher_node,
         camera_node,
+        omni_drive_controller_node,
     ])

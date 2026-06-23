@@ -22,9 +22,13 @@ class OmniDriveController(Node):
         super().__init__("omni_drive_controller")
 
         # ---------------- Configuration ----------------
-        self.r = 0.041  # 바퀴 반지름 (m)
-        self.R = 0.1465  # 로봇 중심에서 바퀴까지의 거리 (m)
-        self.angles_deg = [60.0, 300.0, 180.0]  # 각 바퀴의 각도 (deg)
+        self.declare_parameter("wheel_radius_m", 0.041)
+        self.declare_parameter("wheel_to_center_m", 0.135)
+        self.declare_parameter("wheel_angles_deg", [60.0, 300.0, 180.0])
+
+        self.r = self.get_parameter("wheel_radius_m").value
+        self.R = self.get_parameter("wheel_to_center_m").value
+        self.angles_deg = self.get_parameter("wheel_angles_deg").value
         self.vel_mapping()  # 명령-속도 매핑 테이블
 
         # 각도(rad) 및 sin/cos 값 미리 계산
@@ -94,14 +98,14 @@ class OmniDriveController(Node):
             w1 *= scale
             w2 *= scale
             w3 *= scale
-            self.get_logger().info(
-                f"Wheel angular velocities scaled by {scale:.2f} to fit hardware limits."
-            )
+            # self.get_logger().info(
+            #     f"Wheel angular velocities scaled by {scale:.2f} to fit hardware limits."
+            # )
 
         # 각 바퀴의 목표 속도 logging
-        self.get_logger().info(
-            f"Wheel Angular Velocities: w1={w1:.2f}, w2={w2:.2f}, w3={w3:.2f}"
-        )
+        # self.get_logger().info(
+        #     f"Wheel Angular Velocities: w1={w1:.2f}, w2={w2:.2f}, w3={w3:.2f}"
+        # )
 
         # 목표 속도 - 하드웨어 명령 매핑
         cmd1 = self.vel_to_cmd(w1)
@@ -113,9 +117,9 @@ class OmniDriveController(Node):
         self.driver.wheel_vec[2] = DrivingBase.WHEEL_CENTER + cmd3
 
         # cmd_vel -> HW 바퀴 명령값 logging
-        self.get_logger().info(
-            f"CmdVel: [vx:{vx:.2f}, vy:{vy:.2f}, wz:{wz:.2f}] -> Wheels: {self.driver.wheel_vec}"
-        )
+        # self.get_logger().info(
+        #     f"CmdVel: [vx:{vx:.2f}, vy:{vy:.2f}, wz:{wz:.2f}] -> Wheels: {self.driver.wheel_vec}"
+        # )
 
         # 하드웨어에 명령 전송
         self.driver.transfer()
