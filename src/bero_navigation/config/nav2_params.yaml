@@ -1,57 +1,78 @@
+# ==================== AMCL ===================
 amcl:
   ros__parameters:
-    use_sim_time: False
-    alpha1: 0.2
-    alpha2: 0.2
-    alpha3: 0.2
-    alpha4: 0.2
-    alpha5: 0.2
-    base_frame_id: "base_footprint"
-    beam_skip_distance: 0.5
-    beam_skip_error_threshold: 0.9
-    beam_skip_threshold: 0.3
-    do_beamskip: false
-    global_frame_id: "map"
-    lambda_short: 0.1
-    laser_likelihood_max_dist: 2.0
-    laser_max_range: 35.0  # LiDAR 최대 거리
-    laser_min_range: 0.2  # LiDAR 최소 거리
-    laser_model_type: "likelihood_field"
-    max_beams: 80
-    max_particles: 2000
-    min_particles: 500
-    odom_frame_id: "odom"
-    pf_err: 0.05
-    pf_z: 0.99
-    recovery_alpha_fast: 0.0
-    recovery_alpha_slow: 0.0
-    resample_interval: 1
-    robot_model_type: "nav2_amcl::OmniMotionModel"  # omni-wheel robot
-    save_pose_rate: 0.5
-    sigma_hit: 0.2
+    use_sim_time: false
     tf_broadcast: true
     transform_tolerance: 1.0
-    update_min_a: 0.2
-    update_min_d: 0.25
-    z_hit: 0.9
-    z_max: 0.05  # 최대 거리 무반사 비중
-    z_rand: 0.05  # 랜덤 노이즈 허용도
-    z_short: 0.0  # 짧은 거리 반사 비중
     scan_topic: scan
+    global_frame_id: map
+    odom_frame_id: odom
+    base_frame_id: base_footprint
+    robot_model_type: "nav2_amcl::OmniMotionModel"  # motion model
+    save_pose_rate: 0.5    # 마지막 amcl pose 저장 빈도
+    laser_max_range: 25.0  # LiDAR 최대 거리
+    laser_min_range: 0.1   # LiDAR 최소 거리
+    update_min_a: 0.1      # 이 각도만큼 회전 시 업데이트(rad)
+    update_min_d: 0.18     # 이 거리만큼 이동 시 업데이트(m)
+    resample_interval: 1   # resampling 주기 (1이면 매번, N이면 N회마다 1회 수행)
+    recovery_alpha_fast: 0.0  # 위치 추정 이탈 복구 파라미터
+    recovery_alpha_slow: 0.0  # 위치 추정 이탈 복구 파라미터
 
+    # -------- odometry motion model 노이즈 계수 --------
+    alpha1: 0.2  # 회전으로 인한 odom 회전값 오차
+    alpha2: 0.2  # 직진으로 인한 odom 회전값 오차
+    alpha3: 0.2  # 직진으로 인한 odom 이동거리 오차
+    alpha4: 0.2  # 회전으로 인한 odom 이동거리 오차
+    alpha5: 0.2  # omni 전용 odom 횡방향 이동거리 오차
+
+    # -------- 파티클 개수 조절 관련 --------
+    # KLD-sampling: 위치 확률분포의 근사 오차를 기준으로 파티클 수를 자동 조절하는 기법
+    pf_err: 0.05  # KLD-sampling의 허용 근사 오차, 로봇 위치 사후확률분포를 파티클 분포로 근사할 때의 KLD 오차 한계
+    pf_z: 0.99    # pf_err 오차 한계를 만족시킬 신뢰도 계수
+    min_particles: 500   # 최소 파티클 개수
+    max_particles: 2000  # 최대 파티클 개수
+
+    # -------- laser model(공통) --------
+    laser_model_type: "likelihood_field"
+    max_beams: 120  # 계산에 사용할 최대 beam 수
+    sigma_hit: 0.2  # laser hit 위치 오차 표준편차
+    z_hit: 0.5   # 맵과 맞는 측정값에 점수를 주는 가중치
+    z_rand: 0.5  # 맵과 맞지 않는 측정값도 일부 허용하는 가중치
+
+    # -------- laser model(likelihood_field, likelihood_field_prob model) --------    
+    laser_likelihood_max_dist: 2.0  # 이 범위 이상은 다 같은 점수로 취급
+
+    # -------- laser model(likelihood_field_prob model) --------
+    do_beamskip: false  # likelihood_field_prob 모델에서 beam skip 사용 여부
+    beam_skip_distance: 0.5   # beam이 map과 일치했다고 볼 최대 거리(m)
+    beam_skip_threshold: 0.3  # beam 사용 판정을 위한 최소 일치 비율
+    beam_skip_error_threshold: 0.9  # skip된 beam이 이 비율 이상이면 beam skip 해제
+
+    # -------- laser model(beam model) --------
+    z_max: 0.0    # 최대 거리 측정값에 점수를 주는 가중치
+    z_short: 0.0  # 짧은 거리 측정값에 점수를 주는 가중치
+    lambda_short: 0.1  # z_short 지수 감쇠 속도 계수
+
+    # -------- initial pose --------
+    set_initial_pose: true
+    initial_pose:
+      x: 4.631
+      y: 3.740
+      z: 0.0
+      yaw: 0.002
+
+# ==================== BT Navigator ====================
 bt_navigator:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: false
+    transform_tolerance: 0.1
+    odom_topic: /odometry/filtered
     global_frame: map
     robot_base_frame: base_footprint
-    odom_topic: /odometry/filtered
-    bt_loop_duration: 10
+    bt_loop_duration: 40  # ms
     default_server_timeout: 20
     wait_for_service_timeout: 1000
-    # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
-    # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
-    # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
-    # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
+    # default_nav_to_pose_bt_xml: ""
     plugin_lib_names:
       - nav2_compute_path_to_pose_action_bt_node
       - nav2_compute_path_through_poses_action_bt_node
@@ -105,247 +126,384 @@ bt_navigator:
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: false
 
 bt_navigator_navigate_to_pose_rclcpp_node:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: false
     multi_floor_waypoints_file_path: ""
     multi_floor_map_base_path: ""
 
+# ==================== Local Planner ====================
 controller_server:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: false
+    odom_topic: /odometry/filtered
     controller_frequency: 20.0
-    min_x_velocity_threshold: 0.001  # x 정지 임계
-    min_y_velocity_threshold: 0.001  # y 정지 임계
-    min_theta_velocity_threshold: 0.001  # 회전 정지 임계
+    min_x_velocity_threshold: 0.001  # x축 속도를 0으로 간주하는 임계값
+    min_y_velocity_threshold: 0.001  # y축 속도를 0으로 간주하는 임계값
+    min_theta_velocity_threshold: 0.001  # 각속도를 0으로 간주하는 임계값
     failure_tolerance: 0.0
     progress_checker_plugin: "progress_checker"
-    current_goal_checker: "general_goal_checker"
-    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    goal_checker_plugins: ["general_goal_checker"]
     controller_plugins: ["FollowPath"]
 
-    # Progress checker parameters
+    # Progress checker
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.5
-      movement_time_allowance: 10.0
-    # Goal checker parameters
-    #precise_goal_checker:
-    #  plugin: "nav2_controller::SimpleGoalChecker"
-    #  xy_goal_tolerance: 0.25
-    #  yaw_goal_tolerance: 0.25
-    #  stateful: True
+      movement_time_allowance: 20.0
+
+    # Goal checker
     general_goal_checker:
-      stateful: False
+      stateful: true
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.25
       yaw_goal_tolerance: 0.25
-    # DWB parameters
-    FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: True
-      min_vel_x: 0.0  # 제자리 회전을 위해 0
-      min_vel_y: 0.0  # 제자리 회전을 위해 0
-      max_vel_x: 0.48
-      max_vel_y: 0.42
-      max_vel_theta: 2.87
-      min_speed_xy: 0.17  # 최소 xy 속도
-      max_speed_xy: 0.48  # 최대 xy 속도
-      min_speed_theta: 0.29  # 최소 회전 속도
-      # Add high threshold velocity for turtlebot 3 issue.
-      # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
-      acc_lim_x: 2.5
-      acc_lim_y: 2.5
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
-      decel_lim_y: -2.5
-      decel_lim_theta: -3.2
-      vx_samples: 20
-      vy_samples: 5
-      vtheta_samples: 20
-      sim_time: 1.7
-      linear_granularity: 0.05
-      angular_granularity: 0.025
-      transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
-      trans_stopped_velocity: 0.25
-      short_circuit_trajectory_evaluation: True
-      stateful: True
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
-      RotateToGoal.lookahead_time: -1.0
 
+    # ==================== MPPI ====================
+    FollowPath:
+      plugin: "nav2_mppi_controller::MPPIController"
+      transform_tolerance: 0.1
+      visualize: false      # MPPI traj 시각화 여부
+      motion_model: "Omni"  # motion model
+      iteration_count: 1  # 최적화 반복 횟수
+      temperature: 0.3  # 낮을수록 최적의 궤적 1개에 집중, 높으면 여러 궤적의 평균
+      batch_size: 1500  # 샘플링 궤적 개수
+      time_steps: 56  # 시뮬레이션 예측 스텝 수
+      model_dt: 0.05  # 스텝 간격(초)
+      vx_std: 0.2   # vx 제어 샘플링 표준편차
+      vy_std: 0.2  # vy 제어 샘플링 표준편차
+      wz_std: 0.4   # wz 제어 샘플링 표준편차
+      vx_max: 0.44  # 최대 전진 속도(m/s)
+      vx_min: -0.44 # 최대 후진 속도(m/s)
+      vy_max: 0.38  # 최대 횡방향 속도(m/s)
+      wz_max: 2.81  # 최대 회전 속도(rad/s)
+      gamma: 0.015  # 제어 명령 패널티 가중치(높으면 매끈하고 보수적으로, 낮으면 날카롭게)
+
+      # 시각화
+      TrajectoryVisualizer:
+        trajectory_step: 10   # 시각화 궤적 간격
+        time_step: 5         # 포인트 간격
+
+      # 평가 기준, 최종 비용 = (critic별 측정값 x cost_weight) ^ cost_power
+      critics: [
+        "PathAlignCritic", "PathFollowCritic", "PathAngleCritic",
+        "GoalCritic", "GoalAngleCritic",
+        "TwirlingCritic", "VelocityDeadbandCritic", "ObstaclesCritic", "ConstraintCritic"
+      ]
+      # unused critics: "CostCritic", "PreferForwardCritic"
+
+      # -------- path critics --------
+      # offset_from_furthest는 global path point index 기준
+      # point 계산은 global costmap의 resolution을 따라감
+      # resolution = 포인트 간 거리, resolution = 0.05 -> 20 points = 1m
+
+      # 경로 정렬 이탈 평가
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 10.0           # 경로 정렬 오차 패널티
+        offset_from_furthest: 20    # 경로를 이 point 수 이상 따라간 뒤 평가 활성화
+        threshold_to_consider: 0.5  # 평가 종료 반경(goal 근처에서는 goal critic으로 평가)
+        max_path_occupancy_ratio: 0.05  # 전역 경로가 막힌 비율이 이 값보다 크면 PathAlignCritic 비활성화
+        trajectory_point_step: 4      # 전체 time_steps 중 4칸씩 건너뛰며 궤적 평가
+        use_path_orientations: false  # 경로와 각도까지 맞출지 여부 (false면 횡이동 가능)
+
+      # 경로 추종 오차 평가
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0            # 경로 추종 오차 패널티
+        offset_from_furthest: 5     # 경로 추종에 사용할 목표 경로 point offset
+        threshold_to_consider: 1.4  # 평가 종료 반경(goal 근처에서는 goal critic으로 평가)
+
+      # 경로 방향 오차 평가
+      PathAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 2.0            # 경로 방향 오차 패널티
+        offset_from_furthest: 4     # 각도 정렬에 사용할 목표 경로 point offset
+        threshold_to_consider: 0.5  # 평가 종료 반경(goal 근처에서는 goal critic으로 평가)
+        max_angle_to_furthest: 1.0  # 목표점과의 각도가 이 값 이상일 때 critic 활성화(rad)
+        forward_preference: false   # true: 전진 주행 선호, false: 후진 주행도 허용
+
+      # -------- goal critics --------
+      # 목표 위치 오차 평가
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0            # 목표점에서 멀수록 패널티
+        threshold_to_consider: 1.4  # 목표점 1.4m 이내부터 평가
+
+      # 목표 각도 오차 평가
+      GoalAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.0            # 목표 각도와 다를수록 패널티
+        threshold_to_consider: 1.0  # 목표점 1.0m 이내부터 각도 평가
+
+      # -------- other critics --------
+      # 불필요한 회전 평가
+      TwirlingCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 10.0  # 불필요한 회전에 패널티
+
+      # Deadband 이하 속도 명령 평가
+      VelocityDeadbandCritic: 
+        enabled: true
+        cost_power: 1
+        cost_weight: 35.0  # Deadband 명령 패널티
+        deadband_velocities: [0.048, 0.042, 0.305]  # 최소 유효 속도
+
+      # 장애물 근접 평가
+      ObstaclesCritic:
+        enabled: true
+        cost_power: 1
+        repulsion_weight: 1.5      # 장애물 근처 접근 패널티
+        critical_weight: 20.0      # 충돌 임박 영역 패널티
+        collision_margin_distance: 0.1  # 장애물과 최소 이격 거리(m)
+        inflation_radius: 0.4      # local costmap의 inflation_radius와 동일값(m)
+        cost_scaling_factor: 5.0   # local costmap의 cost_scaling_factor와 동일값
+        consider_footprint: false  # false: robot_radius, true: footprint 기반 검사
+        collision_cost: 10000.0    # 충돌 패널티
+        near_goal_distance: 0.5    # 목표 근처에서는 장애물 회피 완화(m)
+
+      # 속도 및 기구학 제약 위반 평가
+      ConstraintCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 4.0  # 속도 및 기구학 위반 궤적 평가
+
+      # -------- unused critics --------
+      # Costmap 비용 평가
+      # CostCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 3.81           # 높은 cost 영역일수록 패널티
+      #   critical_cost: 300.0        # INSCRIBED_INFLATED_OBSTACLE 이상일 때 더하는 패널티 값
+      #   consider_footprint: false   # false: robot_radius, true: footprint 기반 검사
+      #   collision_cost: 10000.0   # 실제 충돌 패널티
+      #   near_goal_distance: 0.5     # 목표 근처 costmap 회피 패널티 완화(m)
+
+      # 전진 주행 선호 평가
+      # PreferForwardCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 2.0            # 후진/역방향 이동 억제
+      #   threshold_to_consider: 0.5  # 평가 종료 반경(goal 근처에서는 goal critic으로 평가)
+
+    # ==================== DWB ====================
+    # FollowPath:
+    #   plugin: "dwb_core::DWBLocalPlanner"
+    #   transform_tolerance: 0.1
+    #   sim_time: 1.3
+    #   vx_samples: 17
+    #   vy_samples: 8
+    #   vtheta_samples: 20
+    #   linear_granularity: 0.05
+    #   angular_granularity: 0.025
+    #   min_vel_x: -0.44
+    #   min_vel_y: -0.38
+    #   max_vel_x: 0.44
+    #   max_vel_y: 0.38
+    #   max_vel_theta: 2.81
+    #   min_speed_xy: 0.064
+    #   max_speed_xy: 0.44
+    #   min_speed_theta: 0.305
+    #   acc_lim_x: 0.4
+    #   acc_lim_y: 0.4
+    #   acc_lim_theta: 2.0
+    #   decel_lim_x: -0.4
+    #   decel_lim_y: -0.4
+    #   decel_lim_theta: -2.5
+    #   xy_goal_tolerance: 0.25
+    #   trans_stopped_velocity: 0.07
+
+    #   critics: ["BaseObstacle", "RotateToGoal", "GoalAlign", "PathAlign", "PathDist", "GoalDist", "Oscillation"]
+    #   BaseObstacle.scale: 0.5
+    #   RotateToGoal.scale: 32.0
+    #   RotateToGoal.slowing_factor: 5.0
+    #   RotateToGoal.lookahead_time: 1.0
+    #   GoalAlign.scale: 24.0
+    #   GoalAlign.forward_point_distance: 0.1
+    #   PathAlign.scale: 32.0
+    #   PathAlign.forward_point_distance: 0.1
+    #   PathDist.scale: 32.0
+    #   GoalDist.scale: 24.0
+    #   Oscillation.scale: 1.0
+    #   Oscillation.oscillation_reset_angle: 0.2
+    #   Oscillation.oscillation_reset_dist: 0.05
+    #   Oscillation.oscillation_reset_time: -1.0
+    #   Oscillation.x_only_threshold: 0.05
+
+# ==================== Costmap ====================
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0
-      publish_frequency: 2.0
+      use_sim_time: false
+      transform_tolerance: 0.3
       global_frame: odom
       robot_base_frame: base_footprint
-      use_sim_time: False
-      rolling_window: true
-      width: 3
-      height: 3
-      resolution: 0.05
-      robot_radius: 0.165
-      plugins: ["inflation_layer"] # voxel 필요시 추가
+      update_frequency: 5.0   # costmap 갱신 주기(Hz)
+      publish_frequency: 2.0  # 시각화 발행 주기(Hz)
+      rolling_window: true    # rolling window 사용 여부
+      width: 5   # local costmap window의 가로 길이(m)
+      height: 5  # local costmap window의 세로 길이(m)
+      resolution: 0.05    # occupancy grid cell 한 변의 길이(m)
+      robot_radius: 0.16  # 원형 robot footprint 반지름
+      footprint: "[]"  # 다각형 robot footprint
+      footprint_padding: 0.01     # 로봇 주위 padding(m)
+      always_send_full_costmap: true  # costmap 전체 발행 여부
+      plugins: ["obstacle_layer", "inflation_layer"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        observation_sources: scan
+        footprint_clearing_enabled: true  # footprint 밑에 장애물이 있으면 clear
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          inf_is_valid: false  # scan의 inf값을 유효한 값으로 볼지
+          clearing: true  # 빈 공간 clearing 여부
+          marking: true   # 장애물 marking 여부
+          data_type: "LaserScan"
+          raytrace_max_range: 4.0  # 빈 공간 clearing을 적용할 최대 거리(m)
+          raytrace_min_range: 0.0  # 빈 공간 clearing을 시작할 최소 거리(m)
+          obstacle_max_range: 2.5  # 장애물로 marking할 최대 거리(m)
+          obstacle_min_range: 0.0  # 장애물로 marking할 최소 거리(m)
+          observation_persistence: 0.0
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.25
-      # voxel_layer:  # 3차원 장애물 처리를 위한 layer, 일단 주석처리
-      #   plugin: "nav2_costmap_2d::VoxelLayer"
-      #   enabled: True
-      #   publish_voxel_map: True
-      #   origin_z: 0.0
-      #   z_resolution: 0.05
-      #   z_voxels: 16
-      #   max_obstacle_height: 2.0
-      #   mark_threshold: 0
-      #   observation_sources: scan
-      #   scan:
-      #     topic: /scan
-      #     max_obstacle_height: 2.0
-      #     clearing: True
-      #     marking: True
-      #     data_type: "LaserScan"
-      #     raytrace_max_range: 3.0
-      #     raytrace_min_range: 0.0
-      #     obstacle_max_range: 2.5
-      #     obstacle_min_range: 0.0
-      static_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: True
-      always_send_full_costmap: True
+        cost_scaling_factor: 5.0  # inflation cost 감소 계수
+        inflation_radius: 0.4     # inflation 범위(m)
 
 global_costmap:
   global_costmap:
     ros__parameters:
-      update_frequency: 1.0
-      publish_frequency: 1.0
+      use_sim_time: false
+      transform_tolerance: 0.3
       global_frame: map
       robot_base_frame: base_footprint
-      use_sim_time: False
-      robot_radius: 0.165
-      resolution: 0.05
-      track_unknown_space: true
+      update_frequency: 5.0   # costmap 갱신 주기(Hz)
+      publish_frequency: 2.0  # 시각화 발행 주기(Hz)
+      resolution: 0.05    # occupancy grid cell 한 변의 길이(m)
+      robot_radius: 0.16  # 원형 robot footprint 반지름
+      footprint: "[]"  # 다각형 robot footprint
+      footprint_padding: 0.01     # 로봇 주위 padding(m)
+      track_unknown_space: true  # unknown 셀 기본값을 NO_INFORMATION(255)로 유지(false: FREE_SPACE(0))
+      always_send_full_costmap: true  # costmap 전체 발행 여부
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: true
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
-        enabled: True
         observation_sources: scan
+        footprint_clearing_enabled: true  # footprint 밑에 장애물이 있으면 clear
         scan:
           topic: /scan
           max_obstacle_height: 2.0
-          clearing: True
-          marking: True
+          inf_is_valid: false  # scan의 inf값을 유효한 값으로 볼지
+          clearing: true  # 빈 공간 clearing 여부
+          marking: true   # 장애물 marking 여부
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
-      static_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: True
+          raytrace_max_range: 5.0  # 빈 공간 clearing을 적용할 최대 거리(m)
+          raytrace_min_range: 0.0  # 빈 공간 clearing을 시작할 최소 거리(m)
+          obstacle_max_range: 4.0  # 장애물로 marking할 최대 거리(m)
+          obstacle_min_range: 0.0  # 장애물로 marking할 최소 거리(m)
+          observation_persistence: 0.0
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.25
-      always_send_full_costmap: True
+        cost_scaling_factor: 5.0  # inflation cost 감소 계수
+        inflation_radius: 0.4     # inflation 범위(m)
 
+# ==================== Map ====================
 map_server:
   ros__parameters:
-    use_sim_time: False
-    # Overridden in launch by the "map" launch configuration or provided default value.
-    # To use in yaml, remove the default "map" value in the tb3_simulation_launch.py file & provide full path to map below.
-    yaml_filename: "/home/soda/cap/bero/install/bero_navigation/share/bero_navigation/maps/home_0.025_2.yaml"
+    use_sim_time: false
+    yaml_filename: ""  # initial map 경로
 
 map_saver:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: false
     save_map_timeout: 5.0
     free_thresh_default: 0.25
     occupied_thresh_default: 0.65
-    map_subscribe_transient_local: True
+    map_subscribe_transient_local: true
 
+# ==================== Global Planner ====================
 planner_server:
   ros__parameters:
+    use_sim_time: false
     expected_planner_frequency: 20.0
-    use_sim_time: False
     planner_plugins: ["GridBased"]
     GridBased:
       plugin: "nav2_navfn_planner/NavfnPlanner"
-      tolerance: 0.5
-      use_astar: true
-      allow_unknown: false
+      tolerance: 0.4  # 도착 지점 cell이 막혔을 때 찾을 대체 도달점 범위(m)
+      use_astar: true  # A* 사용여부(false: Dijkstra)
+      allow_unknown: false   # unknown 셀을 장애물로 취급하여 경로 탐색에서 제외
 
-# smoother_server:  # 저속주행이기 때문에 일단 주석처리
+# ==================== Global Plan Smoother ====================
+# BT XML에 SmoothPath 노드를 추가해서 사용
+# smoother_server:
 #   ros__parameters:
-#     use_sim_time: False
+#     use_sim_time: false
 #     smoother_plugins: ["simple_smoother"]
 #     simple_smoother:
 #       plugin: "nav2_smoother::SimpleSmoother"
 #       tolerance: 1.0e-10
 #       max_its: 1000
-#       do_refinement: True
+#       do_refinement: true
 
+# ==================== Behavior Server ====================
 behavior_server:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: false
+    transform_tolerance: 0.1
     costmap_topic: local_costmap/costmap_raw
     footprint_topic: local_costmap/published_footprint
+    global_frame: odom
+    robot_base_frame: base_footprint
     cycle_frequency: 10.0
-    behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
+    behavior_plugins: ["spin", "backup", "wait"]
     spin:
       plugin: "nav2_behaviors/Spin"
     backup:
       plugin: "nav2_behaviors/BackUp"
-    drive_on_heading:
-      plugin: "nav2_behaviors/DriveOnHeading"
     wait:
       plugin: "nav2_behaviors/Wait"
-    assisted_teleop:
-      plugin: "nav2_behaviors/AssistedTeleop"
-    global_frame: odom
-    robot_base_frame: base_footprint
-    transform_tolerance: 0.1
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
     rotational_acc_lim: 3.2
 
+# ==================== Waypoint Follower ====================
 waypoint_follower:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: false
     loop_rate: 20
     stop_on_failure: false
     waypoint_task_executor_plugin: "wait_at_waypoint"
     wait_at_waypoint:
       plugin: "nav2_waypoint_follower::WaitAtWaypoint"
-      enabled: True
+      enabled: true
       waypoint_pause_duration: 200
 
+# ==================== Velocity Smoother ====================
 velocity_smoother:
   ros__parameters:
-    use_sim_time: False
-    smoothing_frequency: 20.0
-    scale_velocities: False
+    use_sim_time: false
     feedback: "OPEN_LOOP"
-    max_velocity: [0.48, 0.42, 2.87]
-    min_velocity: [-0.48, -0.42, -2.87]
-    max_accel: [2.5, 2.5, 3.2]
-    max_decel: [-2.5, -2.5, -3.2]
-    odom_topic: "/odometry/filtered"
-    odom_duration: 0.1
-    deadband_velocity: [0.0, 0.0, 0.0]
-    velocity_timeout: 1.0
+    odom_topic: "/odometry/filtered"  # CLOSED_LOOP 전용
+    odom_duration: 0.1  # CLOSED_LOOP 전용
+    smoothing_frequency: 20.0  # 출력 속도 계산 빈도
+    velocity_timeout: 1.0   # 마지막 속도 명령 이후 정지 명령으로 전환하는 timeout(s)
+    scale_velocities: true  # 한 축이 가감속 한계를 넘으면 전체 속도 변화 비율 축소
+
+    # [vx, vy, wz]
+    max_velocity: [0.44, 0.38, 2.81]     # 최대 속도
+    min_velocity: [-0.44, -0.38, -2.81]  # 최소 속도
+    max_accel: [0.4, 0.4, 2.0]     # 가속도 제한
+    max_decel: [-0.4, -0.4, -2.5]  # 감속도 제한
+    deadband_velocity: [0.048, 0.042, 0.305]  # 최소 유효 속도
