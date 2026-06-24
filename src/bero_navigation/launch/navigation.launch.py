@@ -6,6 +6,7 @@ from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
 )
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
@@ -22,13 +23,14 @@ def generate_launch_description():
     # Path to files
     map_path = os.path.join(pkg_bero_navigation, 'maps', 'dorm/floor_L.yaml')
     nav2_config_path = os.path.join(pkg_bero_navigation, 'config', 'nav2_params.yaml')
-    rviz_config_path = os.path.join(pkg_bero_navigation, 'config', 'bero.rviz')
+    rviz_config_path = os.path.join(pkg_bero_navigation, 'config', 'navigation.rviz')
     nav2_bringup_launch_path = os.path.join(pkg_nav2, 'launch', 'bringup_launch.py')
     bero_bringup_launch_path = os.path.join(pkg_bero_bringup, 'launch', 'bero_bringup.launch.py')
 
     # Arguments
     map_config = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
+    use_rviz = LaunchConfiguration('use_rviz')
 
     map_arg = DeclareLaunchArgument(
         'map',
@@ -39,6 +41,11 @@ def generate_launch_description():
         'params_file',
         default_value=nav2_config_path,
         description='Full path to param file to load',
+    )
+    use_rviz_arg = DeclareLaunchArgument(
+        'use_rviz',
+        default_value='true',
+        description='Whether to start RViz',
     )
 
     # Included launches
@@ -62,11 +69,13 @@ def generate_launch_description():
         name='rviz2',
         output='screen',
         arguments=['-d', rviz_config_path],
+        condition=IfCondition(use_rviz),
     )
 
     return LaunchDescription([
         map_arg,
         params_arg,
+        use_rviz_arg,
         bero_bringup_launch,
         nav2_bringup_launch,
         rviz_node,

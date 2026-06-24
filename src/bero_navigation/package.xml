@@ -7,11 +7,24 @@
   <maintainer email="phone13324@gmail.com">shosae</maintainer>
   <license>TODO: License declaration</license>
 
+  <!-- Launch dependencies -->
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <!-- Navigation dependencies -->
+  <exec_depend>bero_bringup</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+
+  <!-- UI dependencies -->
+  <exec_depend>rviz2</exec_depend>
+
+  <!-- Test dependencies -->
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
-  
+
   <export>
     <build_type>ament_python</build_type>
   </export>
