@@ -23,7 +23,7 @@ class CameraNode(Node):
         # ---------------- Declare Parameter ----------------
         self.declare_parameter('width', 1280)
         self.declare_parameter('height', 720)
-        self.declare_parameter('fps', 10)
+        self.declare_parameter('fps', 20)
         self.declare_parameter('rotate', True)
         self.declare_parameter('frame_id', 'camera')
 
