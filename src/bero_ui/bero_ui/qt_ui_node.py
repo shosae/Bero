@@ -21,10 +21,9 @@ from PyQt5.QtWidgets import (
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from rclpy.qos import QoSProfile, DurabilityPolicy
 
-from unique_identifier_msgs.msg import UUID
 from bero_msgs.action import DeliverToRoom
+from bero_msgs.srv import ConfirmPickup
 
 
 class DeliverToRoomActionClient(Node):
@@ -39,12 +38,8 @@ class DeliverToRoomActionClient(Node):
         super().__init__("deliver_to_room_action_client")
         self._status_signal = status_signal
         self._delivery_client = ActionClient(self, DeliverToRoom, "deliver_to_room")
+        self._confirm_client = self.create_client(ConfirmPickup, "confirm_pickup")
         self._current_goal_handle = None
-
-        # Subscriber가 늦게 들어와도 마지막 메시지를 받을 수 있도록 TRANSIENT_LOCAL 설정
-        qos = QoSProfile(depth=1)
-        qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
-        self._pickup_confirm_pub = self.create_publisher(UUID, "/pickup/confirm", qos)
 
     def _emit_status(self, phase: str, status: str):
         self._status_signal.emit(phase, status)
@@ -99,18 +94,29 @@ class DeliverToRoomActionClient(Node):
         self._current_goal_handle = None
 
     def publish_pickup_confirm(self):
-        """수령 확인을 위해 현재 goal의 UUID를 publish."""
-        if not self._delivery_client.server_is_ready():
-            self._emit_status("error", "배달 서버 연결 끊김")
+        """수령 확인 요청."""
+        if not self._confirm_client.wait_for_service(timeout_sec=2.0):
+            self._emit_status("error", "수령 확인 서버가 준비되지 않았습니다.")
             return
 
         if self._current_goal_handle is None:
             self._emit_status("error", "현재 진행중인 배달이 없습니다.")
             return
 
-        goal_id = self._current_goal_handle.goal_id
-        self._pickup_confirm_pub.publish(goal_id)
-        self.get_logger().info("/pickup/confirm: UUID published.")
+        req = ConfirmPickup.Request()
+        req.mission_uuid = self._current_goal_handle.goal_id
+
+        future = self._confirm_client.call_async(req)
+        future.add_done_callback(self._confirm_response_callback)
+
+    def _confirm_response_callback(self, future):
+        response = future.result()
+        if not response.success:
+            self.get_logger().warn(f"confirm_pickup rejected: {response.message}")
+            self._emit_status("error", response.message)
+            return
+
+        self.get_logger().info("confirm_pickup accepted")
 
 
 class RosThread(QThread):

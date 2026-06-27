@@ -13,8 +13,10 @@
 
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "unique_identifier_msgs/msg/uuid.hpp"
 
 #include "bero_msgs/action/deliver_to_room.hpp"
+#include "bero_msgs/srv/confirm_pickup.hpp"
 #include "bero_msgs/srv/get_mission_data.hpp"
 
 namespace bero_multi_floor_nav
@@ -39,11 +41,17 @@ private:
   // Service server for /get_mission_data
   rclcpp::Service<bero_msgs::srv::GetMissionData>::SharedPtr get_mission_data_service_server_;
 
+  // Service server for /confirm_pickup
+  rclcpp::Service<bero_msgs::srv::ConfirmPickup>::SharedPtr confirm_pickup_service_server_;
+
   // Action client for /navigate_to_pose(Nav2)
   rclcpp_action::Client<NavigateToPose>::SharedPtr nav2_client_;
 
   // Subscriber for BT phase messages
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr bt_phase_sub_;
+
+  // Publisher for BT pickup confirmation
+  rclcpp::Publisher<unique_identifier_msgs::msg::UUID>::SharedPtr pickup_confirm_pub_;
 
   // ========== DeliverToRoom goal handle tracking ==========
   std::mutex deliver_goal_mutex_;
@@ -98,6 +106,10 @@ private:
   void handle_get_mission_data(
     const std::shared_ptr<bero_msgs::srv::GetMissionData::Request> request,
     std::shared_ptr<bero_msgs::srv::GetMissionData::Response> response);
+
+  void handle_confirm_pickup(
+    const std::shared_ptr<bero_msgs::srv::ConfirmPickup::Request> request,
+    std::shared_ptr<bero_msgs::srv::ConfirmPickup::Response> response);
 
   // ========== Subscription Callback ==========
   void on_bt_phase(const std_msgs::msg::String::SharedPtr msg);
