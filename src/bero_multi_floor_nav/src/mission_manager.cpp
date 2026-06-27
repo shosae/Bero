@@ -65,11 +65,28 @@ MissionManager::MissionManager()
       std::placeholders::_2)
   );
 
+  // Service Server(Confirm Pickup)
+  confirm_pickup_service_server_ = this->create_service<bero_msgs::srv::ConfirmPickup>(
+    "confirm_pickup",
+    std::bind(
+      &MissionManager::handle_confirm_pickup,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2)
+  );
+
   // Subscriber(BT phase)
   bt_phase_sub_ = this->create_subscription<std_msgs::msg::String>(
     "/bt_phase",
     10,
     std::bind(&MissionManager::on_bt_phase, this, std::placeholders::_1));
+
+  // Subscriber(Pickup Confirmation)
+  rclcpp::QoS qos(1);
+  qos.durability(RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL);
+  pickup_confirm_pub_ = this->create_publisher<unique_identifier_msgs::msg::UUID>(
+    "/pickup/confirm",
+    qos);
 
   RCLCPP_INFO(get_logger(), "Mission Manager started");
 }
@@ -301,6 +318,24 @@ void MissionManager::handle_get_mission_data(
     response->target_room_number.clear();
     response->success = false;
   }
+}
+
+void MissionManager::handle_confirm_pickup(
+  const std::shared_ptr<bero_msgs::srv::ConfirmPickup::Request> request,
+  std::shared_ptr<bero_msgs::srv::ConfirmPickup::Response> response)
+{
+  const auto mission = get_mission_state();
+
+  if (!mission.is_active) {
+    response->success = false;
+    response->message = "진행 중인 배달이 없습니다.";
+    return;
+  }
+
+  pickup_confirm_pub_->publish(request->mission_uuid);
+  response->success = true;
+  response->message.clear();
+  RCLCPP_INFO(get_logger(), "Pickup confirmation accepted for active mission");
 }
 
 // ========== Subscription Callback ==========

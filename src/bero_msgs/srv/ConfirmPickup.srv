@@ -1,0 +1,4 @@
+unique_identifier_msgs/UUID mission_uuid
+---
+bool success
+string message

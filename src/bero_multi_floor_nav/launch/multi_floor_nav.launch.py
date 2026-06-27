@@ -33,7 +33,7 @@ def generate_launch_description():
     initial_map_path = os.path.join(pkg_bero_navigation, 'maps/dorm', 'floor_L.yaml')
     map_base_path = os.path.join(pkg_bero_navigation, 'maps/dorm', 'floor_')
     nav2_config_path = os.path.join(pkg_bero_navigation, 'config', 'nav2_params.yaml')
-    rviz_config_path = os.path.join(pkg_bero_navigation, 'config', 'bero.rviz')
+    rviz_config_path = os.path.join(pkg_bero_navigation, 'config', 'navigation.rviz')
     floor_estimator_config = os.path.join(pkg_bero_perception_imu, 'config', 'floor_estimator_params.yaml')
     bero_bringup_launch_path = os.path.join(pkg_bero_bringup, 'launch', 'bero_bringup.launch.py')
     nav2_bringup_launch_path = os.path.join(pkg_nav2, 'launch', 'bringup_launch.py')
