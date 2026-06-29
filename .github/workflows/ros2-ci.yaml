@@ -24,21 +24,14 @@ jobs:
         with:
           submodules: recursive   
       
-      # 2.Checkout rplidar ros2 branch 
-      - name: Switch rplidar_ros to ros2 branch
-        run: |
-          cd src/bero_drivers/rplidar
-          git fetch origin ros2
-          git checkout FETCH_HEAD
-
-      # 3.의존성 설치 (rosdep)
+      # 2.의존성 설치 (rosdep)
       - name: Install dependencies
         run: |
           sudo apt update
           rosdep update
           rosdep install --from-paths src --ignore-src -r -y
 
-      # 4.colcon build
+      # 3.colcon build
       - name: Build packages
         run: |
           source /opt/ros/humble/setup.sh
