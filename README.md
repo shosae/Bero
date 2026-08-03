@@ -30,6 +30,16 @@ Bero는 병원, 기숙사와 같이 외부인 출입이 제한되는 실내 다�
 - IMU 센서 기반 엘리베이터 상승·하강 감지 및 층 추정 파이프라인
 - 엘리베이터 탑승, 하차, 층 추정 로직을 Behavior Tree와 연동
 
+## 목차
+
+- [Demo](#demo)
+- [Flow](#flow)
+- [Feature Details](#feature-details)
+- [Maps](#maps)
+- [Package Structure](#package-structure)
+- [Build & Run](#build--run)
+- [CI & Lint](#ci--lint)
+
 ## Demo
 
 https://github.com/user-attachments/assets/35f18ad9-3357-4a4b-b1df-4f85fde25171
@@ -185,6 +195,51 @@ SLAM Toolbox와 Nav2를 사용하여 지도 작성 및 자율주행을 수행합
     - **Nav2**: `1.1.20`
     - **SLAM Toolbox**: `2.6.10`
 - 로봇의 주행 특성과 사람이 많은 환경을 고려하여 navigation 파라미터를 튜닝
+
+### Maps
+
+➜: **Origin**`(x:0.0, y:0.0, yaw:0.0)`
+
+<table width="850">
+  <tr>
+    <th align="center">Floor L</th>
+  </tr>
+  <tr>
+    <td align="left">
+      <img
+        src="https://github.com/user-attachments/assets/02bb09a3-0948-4cae-86a1-5c4c140843b2"
+        alt="Floor L map"
+        width="212.5"
+      />
+    </td>
+  </tr>
+
+  <tr>
+    <th align="center">Floor 2</th>
+  </tr>
+  <tr>
+    <td align="left">
+      <img
+        src="https://github.com/user-attachments/assets/c86e1d78-0c28-4b0d-82e1-fa807ed27de2"
+        alt="Floor 2 map"
+        width="850"
+      />
+    </td>
+  </tr>
+
+  <tr>
+    <th align="center">Upper Floor</th>
+  </tr>
+  <tr>
+    <td align="left">
+      <img
+        src="https://github.com/user-attachments/assets/8789dcfd-d15c-4c00-b5be-0aa040fbb37f"
+        alt="Upper floor map"
+        width="850"
+      />
+    </td>
+  </tr>
+</table>
 
 ### 📍 Localization ([#13](https://github.com/shosae/Bero/pull/13))
 
